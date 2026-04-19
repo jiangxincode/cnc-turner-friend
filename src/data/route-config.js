@@ -10,10 +10,10 @@ export const ROUTE_CONFIG = [
   { path: '#/arc', title: '圆弧接点', showReset: false, module: 'arc-junction' },
   { path: '#/arc/qt', title: '球头接点', showReset: false, module: 'arc-junction' },
   { path: '#/arc/wy', title: '外形接点', showReset: false, module: 'arc-junction' },
-  { path: '#/arc/nk', title: '内形接点', showReset: false, module: 'arc-junction' },
+  { path: '#/arc/nk', title: '内孔接点', showReset: false, module: 'arc-junction' },
   ...Array.from({ length: 12 }, (_, i) => ({ path: `#/arc/qt/${i + 1}`, title: `球头接点${i + 1}`, showReset: true, module: 'arc-junction' })),
   ...Array.from({ length: 36 }, (_, i) => ({ path: `#/arc/wy/${i + 1}`, title: `外形接点${i + 1}`, showReset: true, module: 'arc-junction' })),
-  ...[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18,19,20,21].map(n => ({ path: `#/arc/nk/${n}`, title: `内形接点${n}`, showReset: true, module: 'arc-junction' })),
+  ...Array.from({ length: 21 }, (_, i) => ({ path: `#/arc/nk/${i + 1}`, title: `内孔接点${i + 1}`, showReset: true, module: 'arc-junction' })),
 
   // 螺纹
   { path: '#/thread', title: '各种螺纹', showReset: false, module: 'thread' },
