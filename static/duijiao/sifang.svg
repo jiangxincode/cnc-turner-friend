@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 24.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 380 300" style="enable-background:new 0 0 380 300;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#FF0000;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;}
+	.st1{fill:none;stroke:#FF0000;stroke-width:2;stroke-miterlimit:10;stroke-dasharray:11.9011,11.9011;}
+	.st2{fill:#FFFFFF;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st3{fill:none;stroke:#FFFFFF;stroke-width:0.5;stroke-miterlimit:10;}
+	.st4{fill:none;}
+	.st5{fill:#FFFFFF;}
+	.st6{font-family:'AdobeSongStd-Light-GBpc-EUC-H';}
+	.st7{font-size:12px;}
+	.st8{display:none;}
+	.st9{display:inline;fill:none;stroke:#FF0000;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;}
+	.st10{display:inline;}
+	.st11{fill:none;stroke:#FF0000;stroke-width:2;stroke-miterlimit:10;stroke-dasharray:12.1087,12.1087;}
+	.st12{font-size:10.4652px;}
+	.st13{display:inline;fill:#FFFFFF;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st14{display:inline;fill:none;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st15{display:inline;fill:none;}
+	.st16{display:inline;fill:#FFFFFF;}
+</style>
+<g id="图层_1">
+	<rect x="116" y="76" class="st0" width="148" height="148"/>
+	<g>
+		<circle class="st1" cx="190" cy="150" r="106.1"/>
+	</g>
+	<path class="st2" d="M83.5,44.8l-1.9,9.4c0,0.1,0.1,0.2,0.2,0.2l3.9,0c0.1,0,0.2-0.1,0.2-0.2l-1.9-9.4
+		C83.8,44.6,83.6,44.6,83.5,44.8z"/>
+	<path class="st2" d="M83.6,255.2l-1.9-9.3c0-0.1,0.1-0.2,0.2-0.2h3.8c0.1,0,0.2,0.1,0.2,0.2l-1.9,9.3
+		C83.9,255.4,83.7,255.4,83.6,255.2z"/>
+	<line class="st3" x1="83.8" y1="52.7" x2="83.8" y2="250.6"/>
+	<line class="st3" x1="190" y1="43.9" x2="76.7" y2="43.9"/>
+	<line class="st3" x1="190" y1="256.1" x2="76.7" y2="256.1"/>
+	<rect x="59.2" y="142.1" class="st4" width="26.7" height="19.2"/>
+	<text transform="matrix(1 0 0 1 59.2128 152.618)" class="st5 st6 st7">直径</text>
+</g>
+<g id="图层_3" class="st8">
+	<path class="st9" d="M234.3,224h-88.6c-16.4,0-29.7-13.3-29.7-29.7v-88.6c0-16.4,13.3-29.7,29.7-29.7h88.6
+		c16.4,0,29.7,13.3,29.7,29.7v88.6C264,210.7,250.7,224,234.3,224z"/>
+	<g class="st10">
+		<circle class="st11" cx="190" cy="150" r="92.5"/>
+	</g>
+	<g class="st10">
+		<path class="st2" d="M93,58.5l-1.7,8.1c0,0.1,0.1,0.2,0.2,0.2h3.3c0.1,0,0.2-0.1,0.2-0.2l-1.7-8.1C93.4,58.3,93.1,58.3,93,58.5z"
+			/>
+		<path class="st2" d="M93.1,241.8l-1.6-8c0-0.1,0.1-0.2,0.2-0.2h3.3c0.1,0,0.2,0.1,0.2,0.2l-1.6,8C93.4,242,93.2,242,93.1,241.8z"
+			/>
+		<line class="st3" x1="93.3" y1="65.4" x2="93.3" y2="237.9"/>
+		<line class="st3" x1="185.9" y1="57.7" x2="87.1" y2="57.7"/>
+		<line class="st3" x1="185.9" y1="242.7" x2="87.1" y2="242.7"/>
+		<rect x="71.9" y="143.2" class="st4" width="23.3" height="16.7"/>
+		<text transform="matrix(1 0 0 1 71.8693 152.4561)" class="st5 st6 st12">直径</text>
+	</g>
+	<path class="st13" d="M125,214.5l5.3-8c0.1-0.1,0.2-0.1,0.3,0l2.7,2.7c0.1,0.1,0.1,0.2,0,0.3l-8,5.3
+		C125.1,214.8,124.9,214.7,125,214.5z"/>
+	<line class="st14" x1="129.4" y1="210.3" x2="139.8" y2="200.9"/>
+	<rect x="137.4" y="191.4" class="st15" width="16.4" height="11.8"/>
+	<text transform="matrix(1 0 0 1 141.8576 201.981)" class="st16 st6 st7">R</text>
+</g>
+<g id="图层_2">
+	<path class="st2" d="M227,76l-1.9,9.4c0,0.1,0.1,0.2,0.2,0.2l3.9,0c0.1,0,0.2-0.1,0.2-0.2l-1.9-9.4C227.3,75.8,227,75.8,227,76z"/>
+	<path class="st2" d="M227,224l-1.9-9.3c0-0.1,0.1-0.2,0.2-0.2h3.8c0.1,0,0.2,0.1,0.2,0.2l-1.9,9.3C227.3,224.2,227,224.2,227,224z"
+		/>
+	<line class="st3" x1="227.1" y1="85.6" x2="227.1" y2="221.3"/>
+	<rect x="202.5" y="145.8" class="st4" width="26.7" height="19.2"/>
+	<text transform="matrix(1 0 0 1 202.543 156.4023)" class="st5 st6 st7">高度</text>
+	<g>
+		<path class="st2" d="M116,101.3l9.3,1.9c0.1,0,0.2-0.1,0.2-0.2l0-3.8c0-0.1-0.1-0.2-0.2-0.2L116,101
+			C115.8,101,115.8,101.3,116,101.3z"/>
+		<g>
+			<path class="st2" d="M264,101.3l-9.3,1.9c-0.1,0-0.2-0.1-0.2-0.2v-3.8c0-0.1,0.1-0.2,0.2-0.2l9.3,1.9
+				C264.2,101,264.2,101.3,264,101.3z"/>
+			<line class="st3" x1="254.5" y1="101.2" x2="120.6" y2="101.2"/>
+		</g>
+	</g>
+	<rect x="166.8" y="89.4" class="st4" width="26.7" height="19.2"/>
+	<text transform="matrix(1 0 0 1 166.8287 100.0085)" class="st5 st6 st7">宽度</text>
+</g>
+</svg>

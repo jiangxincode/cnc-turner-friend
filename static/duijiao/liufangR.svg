@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 24.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 380 300" style="enable-background:new 0 0 380 300;" xml:space="preserve">
+<style type="text/css">
+	.st0{display:none;}
+	.st1{display:inline;}
+	.st2{fill:none;stroke:#FF0000;stroke-width:2;stroke-miterlimit:10;stroke-dasharray:11.9011,11.9011;}
+	.st3{display:inline;fill:#FFFFFF;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st4{display:inline;fill:none;stroke:#FFFFFF;stroke-width:0.5;stroke-miterlimit:10;}
+	.st5{display:inline;fill:none;}
+	.st6{display:inline;fill:#FFFFFF;}
+	.st7{font-family:'AdobeSongStd-Light-GBpc-EUC-H';}
+	.st8{font-size:12px;}
+	.st9{display:inline;fill:none;stroke:#FF0000;stroke-width:2;stroke-miterlimit:10;}
+	.st10{fill:none;stroke:#FF0000;stroke-width:2;stroke-miterlimit:10;stroke-dasharray:11.9965,11.9965;}
+	.st11{fill:#FFFFFF;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st12{fill:none;stroke:#FFFFFF;stroke-width:0.5;stroke-miterlimit:10;}
+	.st13{fill:none;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st14{fill:none;}
+	.st15{fill:#FFFFFF;}
+	.st16{fill:none;stroke:#FF0000;stroke-width:2;stroke-miterlimit:10;}
+</style>
+<g id="图层_1" class="st0">
+	<g class="st1">
+		<circle class="st2" cx="190" cy="150" r="106.1"/>
+	</g>
+	<path class="st3" d="M73.5,44.8l-1.9,9.4c0,0.1,0.1,0.2,0.2,0.2l3.9,0c0.1,0,0.2-0.1,0.2-0.2l-1.9-9.4
+		C73.8,44.6,73.6,44.6,73.5,44.8z"/>
+	<path class="st3" d="M73.6,255.2l-1.9-9.3c0-0.1,0.1-0.2,0.2-0.2h3.8c0.1,0,0.2,0.1,0.2,0.2l-1.9,9.3
+		C73.9,255.4,73.7,255.4,73.6,255.2z"/>
+	<line class="st4" x1="73.8" y1="52.7" x2="73.8" y2="250.6"/>
+	<line class="st4" x1="190" y1="43.9" x2="66.1" y2="43.9"/>
+	<line class="st4" x1="190" y1="256.1" x2="66.1" y2="256.1"/>
+	<rect x="49.2" y="142.1" class="st5" width="26.7" height="19.2"/>
+	<text transform="matrix(1 0 0 1 49.2128 152.618)" class="st6 st7 st8">直径</text>
+	<polygon class="st9" points="137,241.8 83.9,150 137,58.2 243,58.2 296.1,150 243,241.8 	"/>
+	<path class="st3" d="M226.6,59l-1.9,9.4c0,0.1,0.1,0.2,0.2,0.2h3.9c0.1,0,0.2-0.1,0.2-0.2L227,59"/>
+	<path class="st3" d="M226.6,241l-1.9-9.3c0-0.1,0.1-0.2,0.2-0.2h3.8c0.1,0,0.2,0.1,0.2,0.2L227,241"/>
+	<line class="st4" x1="226.8" y1="63.7" x2="226.8" y2="234.8"/>
+	<rect x="202.2" y="172.8" class="st5" width="26.7" height="19.2"/>
+	<text transform="matrix(1 0 0 1 202.1736 183.386)" class="st6 st7 st8">高度</text>
+	<path class="st3" d="M84.6,150.2l9.3,1.9c0.1,0,0.2-0.1,0.2-0.2v-3.8c0-0.1-0.1-0.2-0.2-0.2l-9.3,1.9
+		C84.4,149.8,84.4,150.1,84.6,150.2z"/>
+	<path class="st3" d="M295.4,150.2l-9.3,1.9c-0.1,0-0.2-0.1-0.2-0.2v-3.8c0-0.1,0.1-0.2,0.2-0.2l9.3,1.9"/>
+	<line class="st4" x1="290" y1="150" x2="90.2" y2="150"/>
+	<rect x="166.5" y="135.2" class="st5" width="26.7" height="19.2"/>
+	<text transform="matrix(1 0 0 1 166.4594 145.7693)" class="st6 st7 st8">宽度</text>
+</g>
+<g id="图层_3">
+	<g>
+		<circle class="st10" cx="190" cy="150" r="103.1"/>
+	</g>
+	<path class="st11" d="M75,49.6l-1.7,8.1c0,0.1,0.1,0.2,0.2,0.2l3.3,0c0.1,0,0.2-0.1,0.2-0.2l-1.7-8.1C75.4,49.4,75.1,49.4,75,49.6z
+		"/>
+	<path class="st11" d="M75.1,252.3l-1.6-8c0-0.1,0.1-0.2,0.2-0.2h3.3c0.1,0,0.2,0.1,0.2,0.2l-1.6,8
+		C75.4,252.4,75.2,252.4,75.1,252.3z"/>
+	<line class="st12" x1="75.2" y1="47.6" x2="75.2" y2="248.2"/>
+	<line class="st12" x1="190" y1="46.9" x2="69.1" y2="46.9"/>
+	<line class="st12" x1="190" y1="253.1" x2="69.1" y2="253.1"/>
+	<path class="st11" d="M140.8,235l5.3-8c0.1-0.1,0.2-0.1,0.3,0l2.7,2.7c0.1,0.1,0.1,0.2,0,0.3l-8,5.3
+		C140.9,235.4,140.7,235.2,140.8,235z"/>
+	<line class="st13" x1="142.3" y1="233.5" x2="152.6" y2="224.1"/>
+	<rect x="150.2" y="213" class="st14" width="16.4" height="11.8"/>
+	<text transform="matrix(1 0 0 1 154.6413 223.5544)" class="st15 st7 st8">R</text>
+	<path class="st16" d="M224.7,58.2h-69.3c-11.4,0-21.9,6.1-27.6,15.9l-34.6,60c-5.7,9.9-5.7,22,0,31.8l34.6,60
+		c5.7,9.8,16.2,15.9,27.6,15.9h69.3c11.4,0,21.9-6.1,27.6-15.9l34.6-60c5.7-9.9,5.7-22,0-31.8l-34.6-60
+		C246.5,64.2,236,58.2,224.7,58.2z"/>
+	<rect x="48.6" y="142.5" class="st14" width="26.7" height="19.2"/>
+	<text transform="matrix(1 0 0 1 48.6371 153.1004)" class="st15 st7 st8">直径</text>
+</g>
+<g id="图层_2">
+	<path class="st11" d="M227,59l-1.9,9.4c0,0.1,0.1,0.2,0.2,0.2l3.9,0c0.1,0,0.2-0.1,0.2-0.2l-1.9-9.4C227.3,58.8,227,58.8,227,59z"
+		/>
+	<path class="st11" d="M227,241l-1.9-9.3c0-0.1,0.1-0.2,0.2-0.2h3.8c0.1,0,0.2,0.1,0.2,0.2l-1.9,9.3C227.3,241.2,227,241.2,227,241z
+		"/>
+	<line class="st12" x1="227.1" y1="63.8" x2="227.1" y2="234.8"/>
+	<rect x="202.5" y="172.8" class="st14" width="26.7" height="19.2"/>
+	<text transform="matrix(1 0 0 1 202.543 183.4078)" class="st15 st7 st8">高度</text>
+	<path class="st11" d="M89,150.2l9.3,1.9c0.1,0,0.2-0.1,0.2-0.2l0-3.8c0-0.1-0.1-0.2-0.2-0.2l-9.3,1.9
+		C88.8,149.9,88.8,150.1,89,150.2z"/>
+	<path class="st11" d="M291.8,150.2l-9.3,1.9c-0.1,0-0.2-0.1-0.2-0.2v-3.8c0-0.1,0.1-0.2,0.2-0.2l9.3,1.9
+		C292,149.9,292,150.1,291.8,150.2z"/>
+	<line class="st12" x1="290.4" y1="150" x2="90.6" y2="150"/>
+	<rect x="166.8" y="135.2" class="st14" width="26.7" height="19.2"/>
+	<text transform="matrix(1 0 0 1 166.8287 145.7911)" class="st15 st7 st8">宽度</text>
+</g>
+</svg>

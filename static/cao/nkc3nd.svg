@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 24.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 380 300" style="enable-background:new 0 0 380 300;" xml:space="preserve">
+<style type="text/css">
+	.st0{display:none;}
+	.st1{display:inline;fill:none;stroke:#FF0000;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;}
+	.st2{display:inline;}
+	.st3{fill:none;stroke:#FF0000;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;}
+	.st4{fill:none;stroke:#00FF00;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;}
+	.st5{fill:none;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st6{fill:#FFFFFF;stroke:#FFFFFF;stroke-miterlimit:10;}
+	.st7{fill:none;}
+	.st8{fill:#FFFFFF;}
+	.st9{font-family:'AdobeSongStd-Light-GBpc-EUC-H';}
+	.st10{font-size:8px;}
+	.st11{fill:none;stroke:#FFFFFF;stroke-width:0.25;stroke-miterlimit:10;}
+	.st12{fill:none;stroke:#FF0000;stroke-width:0.5;stroke-linecap:round;stroke-miterlimit:10;}
+	.st13{font-size:8.4774px;}
+	.st14{fill:none;stroke:#FFFFFF;stroke-width:0.25;stroke-linecap:round;stroke-miterlimit:10;}
+</style>
+<g id="图层_1" class="st0">
+	<polyline class="st1" points="90,125 90,50 290,50 290,125 	"/>
+	<g class="st2">
+		<line class="st3" x1="215" y1="75" x2="240" y2="125"/>
+		<polyline class="st3" points="140,125 165,75 215,75 		"/>
+	</g>
+	<line class="st1" x1="140" y1="125" x2="90" y2="125"/>
+	<line class="st1" x1="240" y1="125" x2="290" y2="125"/>
+	<polyline class="st1" points="90,174.8 90,249.8 290,249.8 290,174.8 	"/>
+	<g class="st2">
+		<line class="st3" x1="215" y1="224.8" x2="240" y2="174.8"/>
+		<polyline class="st3" points="140,174.8 165,224.8 215,224.8 		"/>
+	</g>
+	<line class="st1" x1="140" y1="174.8" x2="90" y2="174.8"/>
+	<line class="st1" x1="240" y1="174.8" x2="290" y2="174.8"/>
+</g>
+<g id="图层_2">
+	<polyline class="st3" points="90,125.1 90,50.1 290,50.1 290,125.1 	"/>
+	<path class="st4" d="M235.9,116.8c2.5,5.1,7.7,8.3,13.4,8.3"/>
+	<path class="st4" d="M205.7,75.1c5.7,0,10.9,3.2,13.4,8.3"/>
+	<path class="st4" d="M160.9,83.4c2.5-5.1,7.7-8.3,13.4-8.3"/>
+	<path class="st4" d="M130.7,125.1c5.7,0,10.9-3.2,13.4-8.3"/>
+	<path class="st3" d="M90,125.1h40.7"/>
+	<path class="st4" d="M235.9,183.2c2.5-5.1,7.7-8.3,13.4-8.3"/>
+	<path class="st4" d="M205.7,224.9c5.7,0,10.9-3.2,13.4-8.3"/>
+	<path class="st4" d="M160.9,216.6c2.5,5.1,7.7,8.3,13.4,8.3"/>
+	<path class="st4" d="M130.7,174.9c5.7,0,10.9,3.2,13.4,8.3"/>
+	<path class="st3" d="M90,174.9h40.7"/>
+	<polyline class="st3" points="90,174.9 90,249.9 290,249.9 290,174.9 	"/>
+	<line class="st5" x1="197.9" y1="164.1" x2="282.1" y2="164.1"/>
+	<path class="st6" d="M190.9,164.3l10.7,2.2c0.1,0,0.2-0.1,0.2-0.2v-4.4c0-0.1-0.1-0.2-0.2-0.2l-10.7,2.2
+		C190.7,163.9,190.7,164.2,190.9,164.3z"/>
+	<path class="st6" d="M289.2,164.3l-10.7,2.2c-0.1,0-0.2-0.1-0.2-0.2v-4.4c0-0.1,0.1-0.2,0.2-0.2l10.7,2.2
+		C289.3,163.9,289.3,164.2,289.2,164.3z"/>
+	<rect x="228.3" y="152.3" class="st7" width="23.4" height="11.8"/>
+	<text transform="matrix(1 0 0 1 232.0225 159.292)" class="st8 st9 st10">长度</text>
+	<line class="st11" x1="190" y1="224.9" x2="190" y2="161.7"/>
+	<g>
+		<line class="st12" x1="137.4" y1="125.1" x2="144.1" y2="116.8"/>
+		<line class="st12" x1="130.7" y1="125.1" x2="137.4" y2="125.1"/>
+	</g>
+	<g>
+		<line class="st12" x1="242.6" y1="125.1" x2="235.9" y2="116.8"/>
+		<line class="st12" x1="249.3" y1="125.1" x2="242.6" y2="125.1"/>
+	</g>
+	<g>
+		<line class="st12" x1="137.4" y1="174.9" x2="144.1" y2="183.2"/>
+		<line class="st12" x1="130.7" y1="174.9" x2="137.4" y2="174.9"/>
+	</g>
+	<g>
+		<line class="st12" x1="242.6" y1="174.9" x2="235.9" y2="183.2"/>
+		<line class="st12" x1="249.3" y1="174.9" x2="242.6" y2="174.9"/>
+	</g>
+	<g>
+		<line class="st12" x1="167.6" y1="224.9" x2="160.9" y2="216.6"/>
+		<line class="st12" x1="174.3" y1="224.9" x2="167.6" y2="224.9"/>
+	</g>
+	<g>
+		<line class="st12" x1="167.6" y1="75.1" x2="160.9" y2="83.4"/>
+		<line class="st12" x1="174.3" y1="75.1" x2="167.6" y2="75.1"/>
+	</g>
+	<g>
+		<line class="st12" x1="212.4" y1="224.9" x2="219.1" y2="216.6"/>
+		<line class="st12" x1="205.7" y1="224.9" x2="212.4" y2="224.9"/>
+	</g>
+	<path class="st3" d="M144.1,183.2l16.7,33.4"/>
+	<path class="st3" d="M174.3,224.9h31.5"/>
+	<path class="st3" d="M219.1,216.6l16.7-33.4"/>
+	<path class="st3" d="M249.3,174.9H290"/>
+	<path class="st3" d="M249.3,125.1H290"/>
+	<path class="st3" d="M219.1,83.4l16.7,33.4"/>
+	<path class="st3" d="M174.3,75.1h31.5"/>
+	<path class="st3" d="M144.1,116.8l16.7-33.4"/>
+	<g>
+		<line class="st12" x1="212.4" y1="75.1" x2="219.1" y2="83.4"/>
+		<line class="st12" x1="205.7" y1="75.1" x2="212.4" y2="75.1"/>
+	</g>
+	<line class="st5" x1="145.8" y1="131.6" x2="235.1" y2="131.6"/>
+	<path class="st6" d="M138.3,131.8l11.4,2.4c0.1,0,0.2-0.1,0.2-0.2l0-4.7c0-0.1-0.1-0.2-0.2-0.2l-11.4,2.4
+		C138.1,131.5,138.1,131.7,138.3,131.8z"/>
+	<path class="st6" d="M241.7,131.8l-11.4,2.4c-0.1,0-0.2-0.1-0.2-0.2v-4.7c0-0.1,0.1-0.2,0.2-0.2l11.4,2.4
+		C241.9,131.5,241.9,131.7,241.7,131.8z"/>
+	<rect x="178.1" y="119.1" class="st7" width="24.8" height="12.5"/>
+	<text transform="matrix(1 0 0 1 181.9688 126.5181)" class="st8 st9 st13">口宽</text>
+	<line class="st14" x1="290" y1="172.9" x2="290" y2="162.2"/>
+	<line class="st14" x1="137.4" y1="125.7" x2="137.5" y2="134.2"/>
+	<line class="st14" x1="242.6" y1="125.8" x2="242.6" y2="135.1"/>
+	<line class="st5" x1="171.1" y1="67.5" x2="209.2" y2="67.5"/>
+	<path class="st6" d="M168.4,67.7l4.3,0.9c0.1,0,0.2-0.1,0.2-0.2l0-1.8c0-0.1-0.1-0.2-0.2-0.2l-4.3,0.9
+		C168.2,67.4,168.2,67.7,168.4,67.7z"/>
+	<path class="st6" d="M211.6,67.7l-4.3,0.9c-0.1,0-0.2-0.1-0.2-0.2v-1.8c0-0.1,0.1-0.2,0.2-0.2l4.3,0.9
+		C211.8,67.4,211.8,67.7,211.6,67.7z"/>
+	<line class="st14" x1="167.5" y1="65" x2="167.6" y2="75.1"/>
+	<line class="st14" x1="212.4" y1="65.1" x2="212.4" y2="75.1"/>
+	<rect x="177.8" y="55" class="st7" width="24.8" height="12.5"/>
+	<text transform="matrix(1 0 0 1 181.6898 62.4732)" class="st8 st9 st13">底宽</text>
+	<path class="st6" d="M137.4,178.2l-6.6,7.4c-0.1,0.1-0.1,0.2,0,0.3l3.5,2c0.1,0.1,0.2,0,0.3-0.1l3.1-9.4
+		C137.7,178.2,137.5,178,137.4,178.2z"/>
+	<line class="st5" x1="134.4" y1="183.8" x2="127.4" y2="194.2"/>
+	<path class="st6" d="M163.9,222.8l-6.6,7.4c-0.1,0.1-0.1,0.2,0,0.3l3.5,2c0.1,0.1,0.2,0,0.3-0.1l3.1-9.4
+		C164.3,222.8,164,222.6,163.9,222.8z"/>
+	<line class="st5" x1="160.9" y1="228.4" x2="153.9" y2="238.8"/>
+	<rect x="107.5" y="194" class="st7" width="23.4" height="11.8"/>
+	<text transform="matrix(1 0 0 1 112.6577 201.0188)" class="st8 st9 st10">上R</text>
+	<rect x="132.5" y="235.8" class="st7" width="23.4" height="11.8"/>
+	<text transform="matrix(1 0 0 1 137.6949 242.8799)" class="st8 st9 st10">下R</text>
+	<path class="st6" d="M221.7,92.4l-9.1,3.9c-0.1,0-0.1,0.2-0.1,0.3l2.3,3.3c0.1,0.1,0.2,0.1,0.3,0l6.8-7.2
+		C222,92.5,221.8,92.3,221.7,92.4z"/>
+	<line class="st5" x1="216.6" y1="96.2" x2="205.8" y2="102.7"/>
+	<path class="st6" d="M158.4,92.4l9.1,3.9c0.1,0,0.1,0.2,0.1,0.3l-2.3,3.3c-0.1,0.1-0.2,0.1-0.3,0l-6.8-7.2
+		C158.1,92.6,158.2,92.3,158.4,92.4z"/>
+	<line class="st5" x1="163.5" y1="96.2" x2="174.3" y2="102.7"/>
+	<rect x="177.6" y="101.3" class="st7" width="24.8" height="12.5"/>
+	<text transform="matrix(1 0 0 1 181.5233 108.7172)" class="st8 st9 st13">角度</text>
+	<line class="st5" x1="99.7" y1="85.8" x2="99.7" y2="213.6"/>
+	<path class="st6" d="M99.9,223.7l2.5-12.4c0-0.1-0.1-0.2-0.2-0.2l-5.1,0c-0.1,0-0.2,0.1-0.2,0.2l2.5,12.4
+		C99.6,223.9,99.8,223.9,99.9,223.7z"/>
+	<path class="st6" d="M99.6,76.1l-2.4,11.5c0,0.1,0.1,0.2,0.2,0.2l4.7,0c0.1,0,0.2-0.1,0.2-0.2l-2.4-11.5
+		C99.9,75.9,99.6,75.9,99.6,76.1z"/>
+	<path class="st6" d="M89.8,126.6L87.3,139c0,0.1,0.1,0.2,0.2,0.2h5.1c0.1,0,0.2-0.1,0.2-0.2l-2.5-12.4
+		C90.1,126.4,89.9,126.4,89.8,126.6z"/>
+	<path class="st6" d="M90.3,172.9l2.5-12.4c0-0.1-0.1-0.2-0.2-0.2h-5.1c-0.1,0-0.2,0.1-0.2,0.2l2.5,12.4
+		C90,173.1,90.3,173.1,90.3,172.9z"/>
+	<line class="st5" x1="90" y1="137" x2="90" y2="167.5"/>
+	<line class="st11" x1="165.3" y1="75.1" x2="99.9" y2="75.3"/>
+	<line class="st11" x1="165.2" y1="224.8" x2="99.8" y2="225"/>
+	<rect x="62.5" y="146" class="st7" width="24.8" height="12.5"/>
+	<text transform="matrix(1 0 0 1 66.4193 153.4469)" class="st8 st9 st13">小径</text>
+	<rect x="100.7" y="146.5" class="st7" width="24.8" height="12.5"/>
+	<text transform="matrix(1 0 0 1 104.6103 153.914)" class="st8 st9 st13">大径</text>
+</g>
+</svg>
