@@ -30,7 +30,7 @@ export function renderHomePage(container) {
   container.innerHTML = '';
 
   // 渲染导航栏（首页不显示返回和恢复按钮）
-  renderNavBar(container, { title: '车工计算', showBack: false, showReset: false });
+  renderNavBar(container, { title: '数控车工之友', showBack: false, showReset: false });
 
   // 页面内容区域
   const content = document.createElement('div');

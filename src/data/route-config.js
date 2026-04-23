@@ -4,7 +4,7 @@
 
 export const ROUTE_CONFIG = [
   // 首页
-  { path: '#/', title: '车工计算', showReset: false, module: 'home' },
+  { path: '#/', title: '数控车工之友', showReset: false, module: 'home' },
 
   // 圆弧接点
   { path: '#/arc', title: '圆弧接点', showReset: false, module: 'arc-junction' },
