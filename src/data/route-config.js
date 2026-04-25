@@ -37,8 +37,10 @@ export const ROUTE_CONFIG = [
 
   // 常用代码
   { path: '#/gcode', title: '常用代码', showReset: false, module: 'gcode' },
-  { path: '#/gcode/Gdaima', title: 'G/M代码列表', showReset: false, module: 'gcode' },
-  { path: '#/gcode/index', title: '常用代码说明', showReset: false, module: 'gcode' },
+  { path: '#/gcode/Gdaima', title: '常用代码', showReset: false, module: 'gcode' },
+  { path: '#/gcode/Mdaima', title: '常用代码', showReset: false, module: 'gcode' },
+  { path: '#/gcode/Hdaima', title: '常用代码', showReset: false, module: 'gcode' },
+  { path: '#/gcode/index', title: '常用代码', showReset: false, module: 'gcode' },
   { path: '#/gcode/buchang', title: '对刀说明', showReset: false, module: 'gcode' },
 
   // 螺纹对照表

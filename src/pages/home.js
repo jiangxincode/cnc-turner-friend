@@ -11,7 +11,7 @@ export const HOME_MODULES = [
   { name: '公差等级',   route: '#/tolerance',     icon: 'static/zhutu/5.png',  done: true  },
   { name: '对角计算',   route: '#/diagonal',      icon: 'static/zhutu/6.png',  done: false },
   { name: '材料重量',   route: '#/material',      icon: 'static/zhutu/7.png',  done: true  },
-  { name: '常用代码',   route: '#/gcode',         icon: 'static/zhutu/8.png',  done: false },
+  { name: '常用代码',   route: '#/gcode',         icon: 'static/zhutu/8.png',  done: true  },
   { name: '螺纹对照表', route: '#/thread-table',  icon: 'static/zhutu/9.png',  done: true  },
   { name: '三角函数表', route: '#/trig-table',    icon: 'static/zhutu/10.png', done: true  },
   { name: '其他计算',   route: '#/other',         icon: 'static/zhutu/11.png', done: false },
