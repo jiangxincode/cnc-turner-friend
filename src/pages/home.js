@@ -17,7 +17,7 @@ export const HOME_MODULES = [
   { name: '其他计算',   route: '#/other',         icon: 'static/zhutu/11.png', done: false },
   { name: '工艺品',     route: '#/craft',         icon: 'static/zhutu/12.png', done: false },
   { name: '各种槽',     route: '#/groove',        icon: 'static/zhutu/13.png', done: false },
-  { name: '解三角形',   route: '#/triangle',      icon: 'static/zhutu/14.png', done: false },
+  { name: '解三角形',   route: '#/triangle',      icon: 'static/zhutu/14.png', done: true  },
   { name: '宏转G模拟',  route: '#/macro-sim',     icon: 'static/zhutu/15.png', done: false },
   { name: '实验室',     route: '#/lab',           icon: 'static/zhutu/16.png', done: false },
 ];
