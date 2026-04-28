@@ -6,6 +6,9 @@ const coordTypeOptions = [
   { value: 'false', label: '相对坐标' },
 ];
 
+// 坐标系字段统一配置（单选框样式）
+export const coordField = { id: 'juedui', label: '坐标系', type: 'radio', default: 'true', options: coordTypeOptions };
+
 // ── 球头接点 qt1-qt12 ──────────────────────────────────────────
 
 export const qtPages = [
@@ -19,7 +22,7 @@ export const qtPages = [
       { id: 'R',      label: 'R',       type: 'number',   default: 80 },
       { id: 'Ra',     label: 'Ra',      type: 'optional', default: 2 },
       { id: 'tip',    label: '刀尖补偿', type: 'optional', default: 0.4 },
-      { id: 'juedui', label: '坐标系',  type: 'select',   default: 'true', options: coordTypeOptions },
+      { id: 'juedui', label: '坐标系',  type: 'radio',    default: 'true', options: coordTypeOptions },
     ],
   },
   {
@@ -28,11 +31,30 @@ export const qtPages = [
     diagram: 'static/yhjd/yh2.png',
     tip: '任填三项',
     inputs: [
-      { id: 'large', label: '大径',   type: 'number', default: 50 },
-      { id: 'small', label: '小径',   type: 'number', default: '' },
-      { id: 'R',     label: 'R',      type: 'number', default: 30 },
-      { id: 'long',  label: '长度',   type: 'number', default: 8.417 },
-      { id: 'juedui', label: '坐标系', type: 'select', default: 'true', options: coordTypeOptions },
+      {
+        id: 'mode',
+        label: '模式',
+        type: 'radio',
+        default: 'ball',
+        options: [
+          { value: 'ball',  label: '球' },
+          { value: 'arc1',  label: '弧1' },
+          { value: 'arc2',  label: '弧2' },
+          { value: 'arc3',  label: '弧3' },
+        ],
+      },
+      { id: 'large',   label: '大径',    type: 'number',   default: 50 },
+      { id: 'small',   label: '小径',    type: 'number',   default: 33.166 },
+      { id: 'R',       label: 'R',       type: 'number',   default: 30 },
+      { id: 'long',    label: '长度',    type: 'number',   default: 8.417 },
+      { id: 'zStart',  label: 'z起点',   type: 'number',   default: 0 },
+      // Ra 显示条件：球、弧1、弧3
+      { id: 'Ra',      label: 'Ra',      type: 'optional', default: '' },
+      // Rb 显示条件：球、弧2、弧3
+      { id: 'Rb',      label: 'Rb',      type: 'optional', default: '' },
+      { id: 'tip',     label: '刀尖补偿', type: 'optional', default: 0.4 },
+      { id: 'buchang', label: '刀尖补偿', type: 'checkbox', default: false },
+      { id: 'juedui',  label: '坐标系',  type: 'radio',    default: 'true', options: coordTypeOptions },
     ],
   },
   {
@@ -44,7 +66,7 @@ export const qtPages = [
       { id: 'large', label: '大径',   type: 'number', default: 8 },
       { id: 'angle', label: '角度',   type: 'number', default: 30 },
       { id: 'R',     label: 'R',      type: 'number', default: 8 },
-      { id: 'juedui', label: '坐标系', type: 'select', default: 'true', options: coordTypeOptions },
+      { id: 'juedui', label: '坐标系', type: 'radio', default: 'true', options: coordTypeOptions },
     ],
   },
   {
@@ -56,7 +78,7 @@ export const qtPages = [
       { id: 'large', label: '大径',   type: 'number', default: 8 },
       { id: 'R',     label: 'R',      type: 'number', default: 10 },
       { id: 'long',  label: '长度',   type: 'number', default: '' },
-      { id: 'juedui', label: '坐标系', type: 'select', default: 'true', options: coordTypeOptions },
+      { id: 'juedui', label: '坐标系', type: 'radio', default: 'true', options: coordTypeOptions },
     ],
   },
   {
@@ -71,7 +93,7 @@ export const qtPages = [
       { id: 'long2', label: '长度2',  type: 'number', default: 25 },
       { id: 'angle', label: '角度',   type: 'number', default: 20 },
       { id: 'R',     label: 'R',      type: 'number', default: 13 },
-      { id: 'juedui', label: '坐标系', type: 'select', default: 'true', options: coordTypeOptions },
+      { id: 'juedui', label: '坐标系', type: 'radio', default: 'true', options: coordTypeOptions },
     ],
   },
   {
@@ -85,7 +107,7 @@ export const qtPages = [
       { id: 'R',     label: 'R',      type: 'number', default: 25 },
       { id: 'long1', label: '长度1',  type: 'number', default: 91 },
       { id: 'long2', label: '长度2',  type: 'number', default: 50 },
-      { id: 'juedui', label: '坐标系', type: 'select', default: 'true', options: coordTypeOptions },
+      { id: 'juedui', label: '坐标系', type: 'radio', default: 'true', options: coordTypeOptions },
     ],
   },
   {
@@ -97,7 +119,7 @@ export const qtPages = [
       { id: 'large', label: '大径',   type: 'number', default: 50 },
       { id: 'angle', label: '角度',   type: 'number', default: 84.8 },
       { id: 'Ra',    label: 'Ra',     type: 'number', default: 10 },
-      { id: 'juedui', label: '坐标系', type: 'select', default: 'true', options: coordTypeOptions },
+      { id: 'juedui', label: '坐标系', type: 'radio', default: 'true', options: coordTypeOptions },
     ],
   },
   {
@@ -109,7 +131,7 @@ export const qtPages = [
       { id: 'large', label: '大径',   type: 'number', default: 24.7 },
       { id: 'r',     label: 'r',      type: 'number', default: 3 },
       { id: 'R',     label: 'R',      type: 'number', default: 75 },
-      { id: 'juedui', label: '坐标系', type: 'select', default: 'true', options: coordTypeOptions },
+      { id: 'juedui', label: '坐标系', type: 'radio', default: 'true', options: coordTypeOptions },
     ],
   },
   {
@@ -121,7 +143,7 @@ export const qtPages = [
       { id: 'large', label: '大径',   type: 'number', default: 40 },
       { id: 'R',     label: 'R',      type: 'number', default: 24.5 },
       { id: 'Ra',    label: 'Ra',     type: 'number', default: 2.5 },
-      { id: 'juedui', label: '坐标系', type: 'select', default: 'true', options: coordTypeOptions },
+      { id: 'juedui', label: '坐标系', type: 'radio', default: 'true', options: coordTypeOptions },
     ],
   },
   {
@@ -135,7 +157,7 @@ export const qtPages = [
       { id: 'R',     label: 'R',      type: 'number', default: 55 },
       { id: 'Ra',    label: 'Ra',     type: 'number', default: 3 },
       { id: 'Rb',    label: 'Rb',     type: 'number', default: 11.228 },
-      { id: 'juedui', label: '坐标系', type: 'select', default: 'true', options: coordTypeOptions },
+      { id: 'juedui', label: '坐标系', type: 'radio', default: 'true', options: coordTypeOptions },
     ],
   },
   {
@@ -148,7 +170,7 @@ export const qtPages = [
       { id: 'small', label: '小径',   type: 'number', default: 70 },
       { id: 'long',  label: '长度',   type: 'number', default: 127 },
       { id: 'R',     label: 'R',      type: 'number', default: 60 },
-      { id: 'juedui', label: '坐标系', type: 'select', default: 'true', options: coordTypeOptions },
+      { id: 'juedui', label: '坐标系', type: 'radio', default: 'true', options: coordTypeOptions },
     ],
   },
   {
@@ -160,7 +182,7 @@ export const qtPages = [
       { id: 'large', label: '大径',   type: 'number', default: 30 },
       { id: 'long',  label: '长度',   type: 'number', default: 41 },
       { id: 'SR',    label: 'SR',     type: 'number', default: 25 },
-      { id: 'juedui', label: '坐标系', type: 'select', default: 'true', options: coordTypeOptions },
+      { id: 'juedui', label: '坐标系', type: 'radio', default: 'true', options: coordTypeOptions },
     ],
   },
 ];
@@ -170,7 +192,7 @@ export const qtPages = [
 const wyInputs = [
   { id: 'large', label: '大径',   type: 'number', default: 50 },
   { id: 'R',     label: 'R',      type: 'number', default: 20 },
-  { id: 'juedui', label: '坐标系', type: 'select', default: 'true', options: coordTypeOptions },
+  { id: 'juedui', label: '坐标系', type: 'radio', default: 'true', options: coordTypeOptions },
 ];
 
 const wyDiagrams = {
@@ -199,7 +221,7 @@ export const wyPages = Array.from({ length: 36 }, (_, i) => {
 const nkInputs = [
   { id: 'large', label: '内径',   type: 'number', default: 30 },
   { id: 'R',     label: 'R',      type: 'number', default: 15 },
-  { id: 'juedui', label: '坐标系', type: 'select', default: 'true', options: coordTypeOptions },
+  { id: 'juedui', label: '坐标系', type: 'radio', default: 'true', options: coordTypeOptions },
 ];
 
 const nkDiagrams = [

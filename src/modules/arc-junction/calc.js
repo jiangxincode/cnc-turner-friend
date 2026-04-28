@@ -99,22 +99,277 @@ export function calcQt1({ large, R, Ra, tip, juedui }) {
   return lines.join('\n');
 }
 
-// qt2：球头+过渡  输入：大径、R（小径/长度可选）
-export function calcQt2({ large, R, small, long }) {
-  large = Number(large); R = Number(R);
-  if (isNaN(large) || large <= 0) throw new Error('大径必须为正数');
-  if (isNaN(R) || R <= 0) throw new Error('R必须为正数');
-  const Z = fmt(ballZ(R, large));
-  const lines = [
-    `( 球头接点2  大径=${large}  R=${R} )`,
-    'G0 X0',
-    'G1 Z0 F0.1',
-    `G03 X${fmt(large)} Z${Z} R${fmt(R)}`,
-  ];
-  const L = Number(long);
-  if (!isNaN(L) && L > 0) {
-    lines.push(`G1 X${fmt(large)} Z${fmt(Z - L)}`);
+/**
+ * qt2：球头接点2 - 4种模式，各模式长度公式不同
+ *
+ * 球：  L = sqrt(R²-(d/2)²) - sqrt(R²-(D/2)²)
+ * 弧1：L = sqrt(R²-(d/2+R-D/2)²)
+ * 弧2：L = R - sqrt(R²-(D/2-d/2)²)
+ * 弧3：全部必填
+ *
+ * Ra/Rb 过渡圆弧几何（以球模式为例）：
+ *   主圆弧R圆心：(0, -a)，a = sqrt(R²-(d/2)²)
+ *   Ra圆心：(x_ra, -Ra)，x_ra = sqrt((R-Ra)²-(a-Ra)²)
+ *   起点：(x_ra, 0)，直径 = 2*x_ra
+ *   Ra终点（主圆弧起点）：(0,-a) + R*(x_ra/(R-Ra), (a-Ra)/(R-Ra))
+ *   Rb圆心：(D/2-Rb, z_rb)，z_rb = -a + sqrt((R-Rb)²-(D/2-Rb)²)
+ *   主圆弧终点（Rb起点）：(0,-a) + R*(x_rb/(R-Rb), (z_rb+a)/(R-Rb))
+ *   Rb终点：(D/2, z_rb)
+ */
+export function calcQt2({ large, small, R, long, zStart, Ra, Rb, tip, buchang, juedui, mode, _onCalcL }) {
+  const D = large !== '' && large !== null && large !== undefined ? Number(large) : NaN;
+  const d = small !== '' && small !== null && small !== undefined ? Number(small) : NaN;
+  const r = R !== '' && R !== null && R !== undefined ? Number(R) : NaN;
+  const L = long !== '' && long !== null && long !== undefined ? Number(long) : NaN;
+  const z0 = zStart !== '' && zStart !== null && zStart !== undefined ? Number(zStart) : 0;
+  const isAbs = juedui !== 'false';
+  const hasTip = buchang === true || buchang === 'true';
+  const tipVal = hasTip && tip !== '' && tip !== null ? Number(tip) : 0;
+  const raVal = Ra !== '' && Ra !== null && Ra !== undefined ? Number(Ra) : NaN;
+  const rbVal = Rb !== '' && Rb !== null && Rb !== undefined ? Number(Rb) : NaN;
+  const hasRa = !isNaN(raVal) && raVal > 0;
+  const hasRb = !isNaN(rbVal) && rbVal > 0;
+
+  if (isNaN(r) || r <= 0) throw new Error('R必须填写且为正数');
+
+  let calcD = D, calcD2 = d, calcL = L;
+
+  if (mode === 'arc3') {
+    if (isNaN(D) || isNaN(d) || isNaN(L)) throw new Error('弧3必须全部填写');
+
+  } else if (mode === 'ball') {
+    if (isNaN(L)) {
+      if (isNaN(D) || isNaN(d)) throw new Error('请填写大径、小径、R');
+      const a = r * r - (d / 2) * (d / 2);
+      const b = r * r - (D / 2) * (D / 2);
+      if (a < 0) throw new Error('R不足以覆盖小径');
+      if (b < 0) throw new Error('R不足以覆盖大径');
+      calcL = Math.sqrt(a) - Math.sqrt(b);
+      if (calcL < 0) throw new Error('小径应小于大径');
+    } else if (isNaN(D)) {
+      if (isNaN(d)) throw new Error('请填写小径、R、长度');
+      const a = r * r - (d / 2) * (d / 2);
+      if (a < 0) throw new Error('R不足以覆盖小径');
+      const val = Math.sqrt(a) - L;
+      const b = r * r - val * val;
+      if (b < 0) throw new Error('参数不合法');
+      calcD = 2 * Math.sqrt(b);
+    } else if (isNaN(d)) {
+      const b = r * r - (D / 2) * (D / 2);
+      if (b < 0) throw new Error('R不足以覆盖大径');
+      const val = Math.sqrt(b) + L;
+      const a = r * r - val * val;
+      if (a < 0) throw new Error('参数不合法');
+      calcD2 = 2 * Math.sqrt(a);
+    }
+
+  } else if (mode === 'arc1') {
+    if (isNaN(L)) {
+      if (isNaN(D) || isNaN(d)) throw new Error('请填写大径、小径、R');
+      const val = d / 2 + r - D / 2;
+      const inner = r * r - val * val;
+      if (inner < 0) throw new Error('参数不合法：R不足以连接大径和小径');
+      calcL = Math.sqrt(inner);
+    } else if (isNaN(D)) {
+      if (isNaN(d)) throw new Error('请填写小径、R、长度');
+      const inner = r * r - L * L;
+      if (inner < 0) throw new Error('长度超过R');
+      calcD = 2 * (d / 2 + r - Math.sqrt(inner));
+    } else if (isNaN(d)) {
+      const inner = r * r - L * L;
+      if (inner < 0) throw new Error('长度超过R');
+      calcD2 = 2 * (D / 2 - r + Math.sqrt(inner));
+    }
+
+  } else if (mode === 'arc2') {
+    if (isNaN(L)) {
+      if (isNaN(D) || isNaN(d)) throw new Error('请填写大径、小径、R');
+      const half = (D - d) / 2;
+      const inner = r * r - half * half;
+      if (inner < 0) throw new Error('R不足以连接大径和小径');
+      calcL = r - Math.sqrt(inner);
+    } else if (isNaN(D)) {
+      if (isNaN(d)) throw new Error('请填写小径、R、长度');
+      const inner = r * r - (r - L) * (r - L);
+      if (inner < 0) throw new Error('参数不合法');
+      calcD = d + 2 * Math.sqrt(inner);
+    } else if (isNaN(d)) {
+      const inner = r * r - (r - L) * (r - L);
+      if (inner < 0) throw new Error('参数不合法');
+      calcD2 = D - 2 * Math.sqrt(inner);
+    }
+
+  } else {
+    throw new Error('未知模式');
   }
+
+  if (isNaN(calcL) || calcL <= 0) throw new Error('长度计算结果无效');
+  if (isNaN(calcD) || calcD <= 0) throw new Error('大径计算结果无效');
+  if (isNaN(calcD2) || calcD2 <= 0) throw new Error('小径计算结果无效');
+
+  if (typeof _onCalcL === 'function' && mode !== 'arc3') _onCalcL(calcL);
+
+  // 各模式主圆弧圆心（半径坐标）：
+  // 球：  (0,       -sqrt(R²-(d/2)²))
+  // 弧1：(d/2+R,   0)
+  // 弧2/弧3：(d/2, -R)
+  const d2 = calcD2 / 2;
+  const D2 = calcD  / 2;
+  let xMain, zMain;
+  if (mode === 'ball') {
+    xMain = 0;
+    zMain = -Math.sqrt(r * r - d2 * d2);
+  } else if (mode === 'arc1') {
+    xMain = d2 + r;
+    zMain = 0;
+  } else {
+    xMain = d2;
+    zMain = -r;
+  }
+
+  const lines = [];
+
+  if (!hasRa && !hasRb) {
+    // 无过渡圆弧：3行
+    let startX = fmt(calcD2);
+    let endX   = fmt(calcD);
+    let endZ   = fmt(z0 - calcL);
+    if (hasTip && tipVal > 0) {
+      startX = fmt(calcD2 + tipVal * 2);
+      endX   = fmt(calcD - tipVal * 2);
+      endZ   = fmt(z0 - calcL + tipVal);
+    }
+    lines.push(`G0 X${startX}`);
+    lines.push(`G1 Z${fmt(z0)} F0.1`);
+    if (isAbs) {
+      lines.push(`G03 X${endX} Z${endZ} R${fmt(r)}`);
+    } else {
+      lines.push(`G03 U${fmt(calcD - calcD2)} W${fmt(-calcL)} R${fmt(r)}`);
+    }
+
+  } else if (mode === 'arc1') {
+    // 弧1：主圆弧圆心(d2+R, 0)
+    // Ra圆心(x_ra, -Ra)，与主圆弧内切：(xMain-x_ra)²+Ra²=(R-Ra)²
+    //   x_ra = xMain - sqrt((R-Ra)²-Ra²)
+    // 起点X = x_ra（Ra圆弧与Z=0平面相切）
+    let startX2 = d2;
+    let raEndX2, raEndZ;
+    let xM = xMain, zM = zMain; // 弧1+Ra时会修正圆心
+
+    if (hasRa) {
+      // 弧1+Ra时，主圆弧圆心：(D2-R, -L)
+      // 推导：主圆弧过大径终点(D2,-L)，且(xM-D2)²+(zM+L)²=R²
+      //       取zM=-L → xM=D2-R（使Ra圆弧在小径端面切入）
+      xM = D2 - r;
+      zM = -calcL;
+
+      // Ra圆心X：从(xM-x_ra)²+(zM+Ra)²=(R-Ra)²，取x_ra=xM+sqrt(...)
+      const inner_ra = (r-raVal)*(r-raVal) - (zM+raVal)*(zM+raVal);
+      if (inner_ra < 0) throw new Error('Ra过大，无法与主圆弧相切');
+      const x_ra = xM + Math.sqrt(inner_ra);
+      startX2 = x_ra;
+
+      const dx_ra = x_ra - xM, dz_ra = -raVal - zM;
+      const dist_ra = Math.sqrt(dx_ra*dx_ra + dz_ra*dz_ra);
+      raEndX2 = xM + r * dx_ra / dist_ra;
+      raEndZ  = zM + r * dz_ra / dist_ra;
+    }
+
+    let rbStartX2, rbStartZ, rbEndZ;
+    if (hasRb) {
+      const x_rb = D2 - rbVal;
+      const dx = x_rb - xM;
+      const dz_sq = (r-rbVal)*(r-rbVal) - dx*dx;
+      if (dz_sq < 0) throw new Error('Rb过大');
+      const z_rb = zM + Math.sqrt(dz_sq);
+      rbEndZ = z_rb;
+      const dist = Math.sqrt(dx*dx + (z_rb-zM)*(z_rb-zM));
+      rbStartX2 = xM + r * dx / dist;
+      rbStartZ  = zM + r * (z_rb-zM) / dist;
+    }
+
+    lines.push(`G0 X${fmt(startX2 * 2)}`);
+    lines.push(`G1 Z${fmt(z0)} F0.1`);
+    if (hasRa) {
+      if (isAbs) lines.push(`G03 X${fmt(raEndX2*2)} Z${fmt(z0+raEndZ)} R${fmt(raVal)}`);
+      else        lines.push(`G03 U${fmt((raEndX2-startX2)*2)} W${fmt(raEndZ)} R${fmt(raVal)}`);
+    }
+    const mSX = hasRa ? raEndX2 : d2;
+    const mSZ = hasRa ? raEndZ  : 0;
+    const mEX = hasRb ? rbStartX2 : D2;
+    const mEZ = hasRb ? rbStartZ  : -calcL;
+    if (isAbs) lines.push(`G03 X${fmt(mEX*2)} Z${fmt(z0+mEZ)} R${fmt(r)}`);
+    else        lines.push(`G03 U${fmt((mEX-mSX)*2)} W${fmt(mEZ-mSZ)} R${fmt(r)}`);
+    if (hasRb) {
+      if (isAbs) lines.push(`G03 X${fmt(calcD)} Z${fmt(z0+rbEndZ)} R${fmt(rbVal)}`);
+      else        lines.push(`G03 U${fmt((D2-rbStartX2)*2)} W${fmt(rbEndZ-rbStartZ)} R${fmt(rbVal)}`);
+    }
+
+  } else {
+    // 球/弧2/弧3：主圆弧圆心(xMain, zMain)
+    // Ra圆心(x_ra, -Ra)，与主圆弧内切：
+    //   (xMain-x_ra)²+(zMain+Ra)²=(R-Ra)²
+    //   x_ra = sqrt((R-Ra)²-(zMain+Ra)²)
+    // 起点X = x_ra（Ra圆弧与Z=0平面相切）
+    let startX2 = d2;
+    let raEndX2, raEndZ;
+    if (hasRa) {
+      const rMinusRa = r - raVal;
+      const aMinusRa = Math.abs(zMain) - raVal;
+      const inner = rMinusRa * rMinusRa - aMinusRa * aMinusRa;
+      if (inner < 0) throw new Error('Ra过大，无法与主圆弧相切');
+      const x_ra = Math.sqrt(inner);
+      startX2 = x_ra;
+      const dx = x_ra - xMain, dz = -raVal - zMain;
+      const dist = Math.sqrt(dx*dx + dz*dz);
+      raEndX2 = xMain + r * dx / dist;
+      raEndZ  = zMain + r * dz / dist;
+    }
+
+    // Rb圆心(D2-Rb, z_rb)，与主圆弧内切：
+    //   (xMain-(D2-Rb))²+(zMain-z_rb)²=(R-Rb)²
+    //   z_rb = zMain + sqrt((R-Rb)²-(xMain-(D2-Rb))²)
+    let rbStartX2, rbStartZ, rbEndZ;
+    if (hasRb) {
+      const x_rb = D2 - rbVal;
+      const dx = x_rb - xMain;
+      const dz_sq = (r-rbVal)*(r-rbVal) - dx*dx;
+      if (dz_sq < 0) throw new Error('Rb过大，无法与主圆弧相切');
+      const z_rb = zMain + Math.sqrt(dz_sq);
+      rbEndZ = z_rb;
+      const dist = Math.sqrt(dx*dx + (z_rb-zMain)*(z_rb-zMain));
+      rbStartX2 = xMain + r * dx / dist;
+      rbStartZ  = zMain + r * (z_rb-zMain) / dist;
+    }
+
+    const isArc3 = mode === 'arc3';
+    lines.push(`G0 X${fmt((hasRa && !isArc3) ? startX2*2 : calcD2)}`);
+    lines.push(`G1 Z${fmt(z0)} F0.1`);
+
+    if (hasRa) {
+      if (isArc3) {
+        // 弧3的Ra：零位移圆弧（切线过渡）
+        if (isAbs) lines.push(`G03 X${fmt(calcD2)} Z${fmt(z0)} R${fmt(raVal)}`);
+        else        lines.push(`G03 U0 W0 R${fmt(raVal)}`);
+      } else {
+        if (isAbs) lines.push(`G03 X${fmt(raEndX2*2)} Z${fmt(z0+raEndZ)} R${fmt(raVal)}`);
+        else        lines.push(`G03 U${fmt((raEndX2-startX2)*2)} W${fmt(raEndZ)} R${fmt(raVal)}`);
+      }
+    }
+
+    const mSX = (hasRa && !isArc3) ? raEndX2 : d2;
+    const mSZ = (hasRa && !isArc3) ? raEndZ  : 0;
+    const mEX = hasRb ? rbStartX2 : D2;
+    const mEZ = hasRb ? rbStartZ  : -calcL;
+    if (isAbs) lines.push(`G03 X${fmt(mEX*2)} Z${fmt(z0+mEZ)} R${fmt(r)}`);
+    else        lines.push(`G03 U${fmt((mEX-mSX)*2)} W${fmt(mEZ-mSZ)} R${fmt(r)}`);
+
+    if (hasRb) {
+      if (isAbs) lines.push(`G03 X${fmt(calcD)} Z${fmt(z0+rbEndZ)} R${fmt(rbVal)}`);
+      else        lines.push(`G03 U${fmt((D2-rbStartX2)*2)} W${fmt(rbEndZ-rbStartZ)} R${fmt(rbVal)}`);
+    }
+  }
+
   return lines.join('\n');
 }
 
@@ -317,21 +572,27 @@ export function calcArcPage(id, inputs) {
   const prefix = id.replace(/\d+$/, '');
   const n = parseInt(id.replace(/\D/g, ''));
 
+  let result;
   if (prefix === 'qt') {
     switch (n) {
-      case 1:  return calcQt1(inputs);
-      case 2:  return calcQt2(inputs);
-      case 3:  return calcQt3(inputs);
-      case 4:  return calcQt4(inputs);
-      case 5:  return calcQt5(inputs);
-      case 6:  return calcQt6(inputs);
-      case 7:  return calcQt7(inputs);
-      case 8:  return calcQt8(inputs);
-      case 9:  return calcQt9(inputs);
-      case 10: return calcQt10(inputs);
-      case 11: return calcQt11(inputs);
-      case 12: return calcQt12(inputs);
+      case 1:  result = calcQt1(inputs); break;
+      case 2:  result = calcQt2({ ...inputs, mode: inputs.mode || 'ball' }); break;
+      case 3:  result = calcQt3(inputs); break;
+      case 4:  result = calcQt4(inputs); break;
+      case 5:  result = calcQt5(inputs); break;
+      case 6:  result = calcQt6(inputs); break;
+      case 7:  result = calcQt7(inputs); break;
+      case 8:  result = calcQt8(inputs); break;
+      case 9:  result = calcQt9(inputs); break;
+      case 10: result = calcQt10(inputs); break;
+      case 11: result = calcQt11(inputs); break;
+      case 12: result = calcQt12(inputs); break;
+      default: result = calcGenericArc(inputs);
     }
+  } else {
+    result = calcGenericArc(inputs);
   }
-  return calcGenericArc(inputs);
+
+  // 过滤掉括号注释行，如 ( 球头接点1  大径=50  R=80 )
+  return result.split('\n').filter(line => !/^\s*\(.*\)\s*$/.test(line)).join('\n');
 }
