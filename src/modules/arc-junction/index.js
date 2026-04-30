@@ -1119,6 +1119,11 @@ function renderArcIndex() {
     { label: '内孔接点', pages: nkPages, routePrefix: '#/arc/nk/' },
   ];
 
+  // 已完成的接点ID集合
+  const doneSet = new Set([
+    'qt1','qt2','qt3','qt4','qt5','qt6','qt7','qt8','qt9','qt11',
+  ]);
+
   groups.forEach(({ label, pages, routePrefix }) => {
     const groupTitle = document.createElement('div');
     groupTitle.className = 'group-title';
@@ -1131,7 +1136,12 @@ function renderArcIndex() {
 
     pages.forEach((page, idx) => {
       const item = document.createElement('div');
-      item.style.cssText = 'display:flex;flex-direction:column;align-items:center;padding:2px;cursor:pointer;';
+      item.style.cssText = 'display:flex;flex-direction:column;align-items:center;padding:2px;cursor:pointer;position:relative;';
+
+      // 角标
+      const badge = document.createElement('span');
+      const isDone = doneSet.has(page.id);
+      badge.className = isDone ? 'home-badge home-badge--done' : 'home-badge home-badge--todo';
 
       const img = document.createElement('img');
       img.src = page.diagram;
@@ -1143,6 +1153,7 @@ function renderArcIndex() {
       lbl.textContent = page.title;
       lbl.style.cssText = 'font-size:12px;color:#fff;margin-top:2px;text-align:center;';
 
+      item.appendChild(badge);
       item.appendChild(img);
       item.appendChild(lbl);
       item.addEventListener('click', () => Router.navigate(`${routePrefix}${idx + 1}`));
