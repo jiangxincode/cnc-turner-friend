@@ -594,6 +594,7 @@ function renderArcIndex() {
 
   const content = document.createElement('div');
   content.className = 'page-content';
+  content.style.cssText = 'background:#000;';
 
   const groups = [
     { label: '球头接点', pages: qtPages, routePrefix: '#/arc/qt/' },
@@ -604,25 +605,26 @@ function renderArcIndex() {
   groups.forEach(({ label, pages, routePrefix }) => {
     const groupTitle = document.createElement('div');
     groupTitle.className = 'group-title';
+    groupTitle.style.cssText = 'color:#333;background:#fff;text-align:center;';
     groupTitle.textContent = label;
     content.appendChild(groupTitle);
 
     const grid = document.createElement('div');
-    grid.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px;';
+    grid.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;';
 
     pages.forEach((page, idx) => {
       const item = document.createElement('div');
-      item.style.cssText = 'display:flex;flex-direction:column;align-items:center;padding:6px;cursor:pointer;border:1px solid #eee;border-radius:4px;background:#fff;';
+      item.style.cssText = 'display:flex;flex-direction:column;align-items:center;padding:2px;cursor:pointer;';
 
       const img = document.createElement('img');
       img.src = page.diagram;
       img.alt = page.title;
-      img.style.cssText = 'width:60px;height:60px;object-fit:contain;';
+      img.style.cssText = 'width:100%;aspect-ratio:1;object-fit:contain;';
       img.onerror = () => { img.style.visibility = 'hidden'; };
 
       const lbl = document.createElement('span');
       lbl.textContent = page.title;
-      lbl.style.cssText = 'font-size:11px;color:#333;margin-top:4px;text-align:center;';
+      lbl.style.cssText = 'font-size:12px;color:#fff;margin-top:2px;text-align:center;';
 
       item.appendChild(img);
       item.appendChild(lbl);
