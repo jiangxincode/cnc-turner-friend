@@ -14,7 +14,7 @@ export const HOME_MODULES = [
   { name: '常用代码',   route: '#/gcode',         icon: 'static/zhutu/8.png',  done: true  },
   { name: '螺纹对照表', route: '#/thread-table',  icon: 'static/zhutu/9.png',  done: true  },
   { name: '三角函数表', route: '#/trig-table',    icon: 'static/zhutu/10.png', done: true  },
-  { name: '其他计算',   route: '#/other',         icon: 'static/zhutu/11.png', done: false },
+  { name: '其他计算',   route: '#/other',         icon: 'static/zhutu/11.png', done: true  },
   { name: '工艺品',     route: '#/craft',         icon: 'static/zhutu/12.png', done: false },
   { name: '各种槽',     route: '#/groove',        icon: 'static/zhutu/13.png', done: false },
   { name: '解三角形',   route: '#/triangle',      icon: 'static/zhutu/14.png', done: true  },
