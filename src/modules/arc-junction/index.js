@@ -1,7 +1,7 @@
 import Router from '../../router.js';
 import { renderNavBar } from '../../components/nav-bar.js';
 import { qtPages, wyPages, nkPages } from '../../data/arc-junction-data.js';
-import { calcArcPage, calcQt2, calcQt3 } from './calc.js';
+import { calcArcPage, calcQt2, calcQt3, calcQt5 } from './calc.js';
 
 const app = document.getElementById('app');
 
@@ -46,23 +46,64 @@ function renderArcCalcPage(page) {
     content.appendChild(tipEl);
   }
 
-  // 输入表单
+  // 输入表单（number字段两列布局，optional/radio独立行）
   const form = document.createElement('div');
-  inputs.forEach(field => {
+
+  // 将字段分组：number字段收集起来两两配对，其他类型独立
+  const numberBuf = [];
+  const flushNumberPair = () => {
+    if (numberBuf.length === 0) return;
     const row = document.createElement('div');
-    row.className = 'form-row';
+    row.style.cssText = 'display:flex;border-bottom:1px solid #eee;';
+    // 输出1或2个cell
+    numberBuf.forEach(f => {
+      const cell = document.createElement('div');
+      cell.style.cssText = 'flex:1;display:flex;align-items:center;padding:8px 12px;gap:8px;';
+      const lbl = document.createElement('span');
+      lbl.style.cssText = 'font-size:14px;color:#333;white-space:nowrap;min-width:42px;';
+      lbl.textContent = f.label;
+      const inp = document.createElement('input');
+      inp.type = 'number';
+      inp.className = 'form-input';
+      if (f.default !== '' && f.default !== undefined) inp.value = f.default;
+      if (f.placeholder) inp.placeholder = f.placeholder;
+      inp.dataset.id = f.id;
+      inp.style.cssText = 'flex:1;min-width:0;';
+      cell.appendChild(lbl);
+      cell.appendChild(inp);
+      row.appendChild(cell);
+    });
+    // 如果只有1个number字段，补一个空cell占位
+    if (numberBuf.length === 1) {
+      const empty = document.createElement('div');
+      empty.style.cssText = 'flex:1;';
+      row.appendChild(empty);
+    }
+    form.appendChild(row);
+    numberBuf.length = 0;
+  };
+
+  inputs.forEach(field => {
+    if (field.type === 'number') {
+      numberBuf.push(field);
+      if (numberBuf.length === 2) flushNumberPair();
+      return;
+    }
+
+    // 遇到非number字段，先flush缓冲的number
+    flushNumberPair();
+
+    const row = document.createElement('div');
 
     if (field.type === 'optional') {
-      // 可选输入：复选框 + 输入框（勾选后才启用）
+      row.style.cssText = 'display:flex;align-items:center;padding:8px 16px;border-bottom:1px solid #eee;';
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
       checkbox.style.cssText = 'width:18px;height:18px;margin-right:8px;cursor:pointer;flex-shrink:0;';
       checkbox.dataset.id = field.id + '_enabled';
-
       const labelEl = document.createElement('label');
       labelEl.style.cssText = 'display:flex;align-items:center;flex:1;cursor:pointer;';
       labelEl.textContent = field.label;
-
       const input = document.createElement('input');
       input.type = 'number';
       input.className = 'form-input';
@@ -70,66 +111,47 @@ function renderArcCalcPage(page) {
       input.dataset.id = field.id;
       input.disabled = true;
       input.style.cssText = 'width:80px;margin-left:8px;opacity:0.4;';
-
       checkbox.addEventListener('change', () => {
         input.disabled = !checkbox.checked;
         input.style.opacity = checkbox.checked ? '1' : '0.4';
       });
-
-      row.style.cssText = 'display:flex;align-items:center;padding:8px 16px;border-bottom:1px solid #eee;';
       row.appendChild(checkbox);
       row.appendChild(labelEl);
       row.appendChild(input);
-    } else {
+    } else if (field.type === 'radio') {
+      row.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:20px;padding:10px 16px;border-bottom:1px solid #eee;';
+      const radioName = `radio_${field.id}_${id}`;
+      (field.options || []).forEach(opt => {
+        const lbl = document.createElement('label');
+        lbl.style.cssText = 'display:flex;align-items:center;gap:4px;cursor:pointer;font-size:14px;';
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = radioName;
+        radio.value = opt.value;
+        radio.checked = opt.value === String(field.default);
+        radio.dataset.id = field.id;
+        radio.style.cssText = 'width:16px;height:16px;cursor:pointer;';
+        lbl.appendChild(radio);
+        lbl.appendChild(document.createTextNode(opt.label));
+        row.appendChild(lbl);
+      });
+    } else if (field.type === 'select') {
+      row.className = 'form-row';
       const label = document.createElement('label');
       label.className = 'form-label';
       label.textContent = field.label;
-
       const wrap = document.createElement('div');
       wrap.className = 'form-input-wrap';
-
-      let el;
-      if (field.type === 'select') {
-        el = document.createElement('select');
-        el.className = 'form-input';
-        (field.options || []).forEach(opt => {
-          const o = document.createElement('option');
-          o.value = opt.value;
-          o.textContent = opt.label;
-          if (opt.value === String(field.default)) o.selected = true;
-          el.appendChild(o);
-        });
-      } else if (field.type === 'radio') {
-        // 单选框组（如绝对坐标/相对坐标）
-        el = document.createElement('div');
-        el.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:20px;padding:4px 0;';
-        el.dataset.id = field.id;
-        const radioName = `radio_${field.id}_${id}`;
-        (field.options || []).forEach(opt => {
-          const lbl = document.createElement('label');
-          lbl.style.cssText = 'display:flex;align-items:center;gap:4px;cursor:pointer;font-size:14px;';
-          const radio = document.createElement('input');
-          radio.type = 'radio';
-          radio.name = radioName;
-          radio.value = opt.value;
-          radio.checked = opt.value === String(field.default);
-          radio.dataset.id = field.id;
-          radio.style.cssText = 'width:16px;height:16px;cursor:pointer;';
-          lbl.appendChild(radio);
-          lbl.appendChild(document.createTextNode(opt.label));
-          el.appendChild(lbl);
-        });
-        // 隐藏 label 列，让单选框居中显示
-        label.style.display = 'none';
-        wrap.style.cssText = 'flex:1;';
-      } else {
-        el = document.createElement('input');
-        el.type = 'number';
-        el.className = 'form-input';
-        if (field.default !== '' && field.default !== undefined) el.value = field.default;
-        if (field.placeholder) el.placeholder = field.placeholder;
-      }
+      const el = document.createElement('select');
+      el.className = 'form-input';
       el.dataset.id = field.id;
+      (field.options || []).forEach(opt => {
+        const o = document.createElement('option');
+        o.value = opt.value;
+        o.textContent = opt.label;
+        if (opt.value === String(field.default)) o.selected = true;
+        el.appendChild(o);
+      });
       wrap.appendChild(el);
       row.appendChild(label);
       row.appendChild(wrap);
@@ -137,6 +159,9 @@ function renderArcCalcPage(page) {
 
     form.appendChild(row);
   });
+  // flush 最后可能剩余的单个number字段
+  flushNumberPair();
+
   content.appendChild(form);
 
   // 按钮区域
@@ -232,6 +257,15 @@ function renderArcCalcPage(page) {
     });
 
     try {
+      // 添加回调：将计算出的值回填到空的输入框
+      inputValues._onCalcValues = (vals) => {
+        Object.keys(vals).forEach(key => {
+          const el = app.querySelector(`[data-id="${key}"]`);
+          if (el && el.value.trim() === '' && vals[key] !== undefined && !isNaN(vals[key])) {
+            el.value = parseFloat(Number(vals[key]).toFixed(3));
+          }
+        });
+      };
       const result = calcArcPage(id, inputValues);
       output.value = result;
     } catch (e) {
@@ -833,6 +867,242 @@ function renderQt3Page() {
 }
 
 /**
+ * 球头接点5 专用渲染（两列布局 + N/M 显示）
+ */
+function renderQt5Page() {
+  const page = qtPages[4]; // qt5
+  app.innerHTML = '';
+  let output, nEl, mEl;
+
+  renderNavBar(app, {
+    title: page.title,
+    showBack: true,
+    showReset: true,
+    onReset: () => resetAll(),
+  });
+
+  const content = document.createElement('div');
+  content.className = 'page-content';
+
+  // 示意图
+  if (page.diagram) {
+    const diagArea = document.createElement('div');
+    diagArea.className = 'diagram-area';
+    const img = document.createElement('img');
+    img.src = page.diagram;
+    img.alt = page.title;
+    img.onerror = () => { diagArea.innerHTML = '<span style="color:#999;font-size:13px;">图片加载失败</span>'; };
+    diagArea.appendChild(img);
+    content.appendChild(diagArea);
+  }
+
+  const form = document.createElement('div');
+
+  // 两列字段
+  const pairFields = [
+    { id: 'large', label: '直径', default: 19.874 },
+    { id: 'small', label: '小径', default: '' },
+    { id: 'angle', label: '角度', default: 20 },
+    { id: 'long1', label: '长度1', default: 53 },
+    { id: 'long2', label: '长度2', default: 25 },
+    { id: 'R',     label: 'R',    default: 13 },
+  ];
+
+  for (let i = 0; i < pairFields.length; i += 2) {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;border-bottom:1px solid #eee;';
+    [pairFields[i], pairFields[i + 1]].forEach(f => {
+      const cell = document.createElement('div');
+      cell.style.cssText = 'flex:1;display:flex;align-items:center;padding:8px 12px;gap:8px;';
+      const lbl = document.createElement('span');
+      lbl.style.cssText = 'font-size:14px;color:#333;white-space:nowrap;min-width:42px;';
+      lbl.textContent = f.label;
+      const inp = document.createElement('input');
+      inp.type = 'number';
+      inp.className = 'form-input';
+      if (f.default !== '') inp.value = f.default;
+      inp.dataset.id = f.id;
+      inp.style.cssText = 'flex:1;min-width:0;';
+      cell.appendChild(lbl);
+      cell.appendChild(inp);
+      row.appendChild(cell);
+    });
+    form.appendChild(row);
+  }
+
+  // Ra 单行
+  const raRow = document.createElement('div');
+  raRow.style.cssText = 'display:flex;align-items:center;padding:8px 12px;gap:8px;border-bottom:1px solid #eee;';
+  const raLbl = document.createElement('span');
+  raLbl.style.cssText = 'font-size:14px;color:#333;min-width:42px;';
+  raLbl.textContent = 'Ra';
+  const raInp = document.createElement('input');
+  raInp.type = 'number';
+  raInp.className = 'form-input';
+  raInp.value = 3;
+  raInp.dataset.id = 'Ra';
+  raInp.style.cssText = 'width:100px;';
+  raRow.appendChild(raLbl);
+  raRow.appendChild(raInp);
+  form.appendChild(raRow);
+
+  // 提示文字
+  const tipEl = document.createElement('div');
+  tipEl.style.cssText = 'padding:4px 16px;font-size:12px;color:#e67e22;text-align:right;';
+  tipEl.textContent = '长度1 大R Ra 必填(其他任填三项)';
+  form.appendChild(tipEl);
+
+  // N / M 显示行
+  const nmRow = document.createElement('div');
+  nmRow.style.cssText = 'display:flex;border-bottom:1px solid #eee;';
+  [{ id: 'N', label: 'N' }, { id: 'M', label: 'M' }].forEach(f => {
+    const cell = document.createElement('div');
+    cell.style.cssText = 'flex:1;display:flex;align-items:center;padding:8px 12px;gap:8px;';
+    const lbl = document.createElement('span');
+    lbl.style.cssText = 'font-size:14px;color:#999;min-width:42px;';
+    lbl.textContent = f.label;
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.className = 'form-input';
+    inp.readOnly = true;
+    inp.dataset.id = f.id;
+    inp.style.cssText = 'flex:1;min-width:0;background:#f5f5f5;color:#666;';
+    cell.appendChild(lbl);
+    cell.appendChild(inp);
+    nmRow.appendChild(cell);
+  });
+  form.appendChild(nmRow);
+  nEl = form.querySelector('[data-id="N"]');
+  mEl = form.querySelector('[data-id="M"]');
+
+  // 刀尖补偿
+  const tipRow = document.createElement('div');
+  tipRow.style.cssText = 'display:flex;align-items:center;padding:8px 12px;gap:8px;border-bottom:1px solid #eee;';
+  const tipCb = document.createElement('input');
+  tipCb.type = 'checkbox';
+  tipCb.style.cssText = 'width:18px;height:18px;cursor:pointer;';
+  const tipLbl2 = document.createElement('span');
+  tipLbl2.style.cssText = 'font-size:14px;color:#333;';
+  tipLbl2.textContent = '刀尖补偿';
+  const tipInp = document.createElement('input');
+  tipInp.type = 'number';
+  tipInp.className = 'form-input';
+  tipInp.value = 0.4;
+  tipInp.dataset.id = 'tip';
+  tipInp.disabled = true;
+  tipInp.style.cssText = 'width:80px;opacity:0.4;margin-left:8px;';
+  tipCb.addEventListener('change', () => {
+    tipInp.disabled = !tipCb.checked;
+    tipInp.style.opacity = tipCb.checked ? '1' : '0.4';
+  });
+  tipRow.appendChild(tipCb);
+  tipRow.appendChild(tipLbl2);
+  tipRow.appendChild(tipInp);
+  form.appendChild(tipRow);
+
+  // 坐标系
+  const coordRow = document.createElement('div');
+  coordRow.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:20px;padding:10px 16px;border-bottom:1px solid #eee;';
+  ['绝对坐标', '相对坐标'].forEach((label, i) => {
+    const lbl = document.createElement('label');
+    lbl.style.cssText = 'display:flex;align-items:center;gap:4px;cursor:pointer;font-size:14px;';
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'qt5coord';
+    radio.value = i === 0 ? 'true' : 'false';
+    radio.checked = i === 0;
+    radio.style.cssText = 'width:16px;height:16px;cursor:pointer;';
+    lbl.appendChild(radio);
+    lbl.appendChild(document.createTextNode(label));
+    coordRow.appendChild(lbl);
+  });
+  form.appendChild(coordRow);
+  content.appendChild(form);
+
+  // 按钮
+  const btnArea = document.createElement('div');
+  btnArea.style.cssText = 'display:flex;gap:8px;padding:12px 16px;';
+  const copyBtn = document.createElement('button');
+  copyBtn.className = 'btn-primary';
+  copyBtn.style.cssText = 'flex:1;background:#95a5a6;';
+  copyBtn.textContent = '复制';
+  copyBtn.addEventListener('click', () => {
+    if (output && output.value) {
+      navigator.clipboard.writeText(output.value).catch(() => { output.select(); document.execCommand('copy'); });
+    }
+  });
+  const calcBtn = document.createElement('button');
+  calcBtn.className = 'btn-primary';
+  calcBtn.style.flex = '2';
+  calcBtn.textContent = '计算';
+  calcBtn.addEventListener('click', () => calculate());
+  btnArea.appendChild(copyBtn);
+  btnArea.appendChild(calcBtn);
+  content.appendChild(btnArea);
+
+  // 输出
+  const outputWrap = document.createElement('div');
+  outputWrap.style.cssText = 'padding:0 16px 16px;';
+  output = document.createElement('textarea');
+  output.style.cssText = 'width:100%;height:160px;font-family:monospace;font-size:13px;padding:8px;border:1px solid #ddd;border-radius:4px;resize:vertical;box-sizing:border-box;';
+  output.placeholder = '点击"计算"按钮生成坐标序列...';
+  output.readOnly = true;
+  outputWrap.appendChild(output);
+  content.appendChild(outputWrap);
+  app.appendChild(content);
+
+  function resetAll() {
+    pairFields.forEach(f => {
+      const el = app.querySelector(`[data-id="${f.id}"]`);
+      if (el) el.value = f.default !== '' ? f.default : '';
+    });
+    raInp.value = 3;
+    tipCb.checked = false;
+    tipInp.value = 0.4; tipInp.disabled = true; tipInp.style.opacity = '0.4';
+    app.querySelector('input[name="qt5coord"][value="true"]').checked = true;
+    if (nEl) nEl.value = '';
+    if (mEl) mEl.value = '';
+    if (output) output.value = '';
+  }
+
+  function calculate() {
+    const getVal = id => {
+      const el = app.querySelector(`[data-id="${id}"]`);
+      if (!el) return '';
+      return el.value.trim();
+    };
+    const juedui = app.querySelector('input[name="qt5coord"]:checked')?.value ?? 'true';
+
+    try {
+      const result = calcQt5({
+        large: getVal('large'),
+        small: getVal('small'),
+        angle: getVal('angle'),
+        long1: getVal('long1'),
+        long2: getVal('long2'),
+        R: getVal('R'),
+        Ra: getVal('Ra'),
+        tip: tipCb.checked ? getVal('tip') : null,
+        juedui,
+        _onCalcValues: (vals) => {
+          // 回填小径
+          const smallEl = app.querySelector('[data-id="small"]');
+          if (smallEl && smallEl.value.trim() === '' && vals.small !== undefined) {
+            smallEl.value = parseFloat(vals.small.toFixed(3));
+          }
+          // 显示N和M
+          if (nEl && vals.N !== undefined) nEl.value = parseFloat(vals.N.toFixed(3));
+          if (mEl && vals.M !== undefined) mEl.value = parseFloat(vals.M.toFixed(3));
+        },
+      });
+      output.value = result.split('\n').filter(l => !/^\s*\(.*\)\s*$/.test(l)).join('\n');
+    } catch (e) {
+      output.value = `错误: ${e.message}`;
+    }
+  }
+}
+
+/**
  * 渲染圆弧接点入口页面（分组网格）
  */
 function renderArcIndex() {
@@ -898,6 +1168,11 @@ export function registerRoutes(router) {
     if (idx === 2) {
       // qt3 使用专用渲染
       renderQt3Page();
+      return;
+    }
+    if (idx === 4) {
+      // qt5 使用专用渲染
+      renderQt5Page();
       return;
     }
     const page = qtPages[idx];

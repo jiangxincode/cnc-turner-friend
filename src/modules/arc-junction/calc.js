@@ -465,94 +465,441 @@ export function calcQt3({ large, small, angle, angleLen, arcLen, R, Ra, tip, jue
   return lines.join('\n');
 }
 
-// qt4：球头+直线  输入：大径、R、长度
-export function calcQt4({ large, R, long }) {
-  large = Number(large); R = Number(R);
-  if (isNaN(large) || large <= 0) throw new Error('大径必须为正数');
-  if (isNaN(R) || R <= 0) throw new Error('R必须为正数');
-  const Z = fmt(ballZ(R, large));
-  const lines = [
-    `( 球头接点4  大径=${large}  R=${R} )`,
-    'G0 X0',
-    'G1 Z0 F0.1',
-    `G03 X${fmt(large)} Z${Z} R${fmt(R)}`,
-  ];
-  const L = Number(long);
-  if (!isNaN(L) && L > 0) {
-    lines.push(`G1 X${fmt(large)} Z${fmt(Z - L)}`);
-  }
-  return lines.join('\n');
-}
+// qt4：球头接点4  输入：直径D、R，可选长度（计算回填）、Ra、刀尖补偿、坐标系
+// 计算逻辑：L = R + sqrt(R² - (D/2)²)
+// 输出两段G03圆弧：从顶部到赤道，从赤道到底部
+export function calcQt4({ large, R, long, Ra, tip, juedui, _onCalcValues }) {
+  const D = large !== '' && large !== undefined ? Number(large) : NaN;
+  const r = R     !== '' && R     !== undefined ? Number(R)     : NaN;
 
-// qt5：复合球头  输入：大径、R
-export function calcQt5({ large, R }) {
-  large = Number(large); R = Number(R);
-  if (isNaN(large) || large <= 0) throw new Error('大径必须为正数');
-  if (isNaN(R) || R <= 0) throw new Error('R必须为正数');
-  return stdBallCode(large, R, `球头接点5  大径=${large}  R=${R}`);
-}
+  if (isNaN(r) || r <= 0) throw new Error('R必须为正数');
+  if (isNaN(D) || D <= 0) throw new Error('直径必须为正数');
+  if (D / 2 > r) throw new Error('直径/2 不能大于 R');
 
-// qt6：球头+锥+圆柱  输入：大径、小径、R
-export function calcQt6({ large, small, R }) {
-  large = Number(large); small = Number(small); R = Number(R);
-  if (isNaN(large) || large <= 0) throw new Error('大径必须为正数');
-  if (isNaN(R) || R <= 0) throw new Error('R必须为正数');
-  const Z = fmt(ballZ(R, large));
-  const lines = [
-    `( 球头接点6  大径=${large}  小径=${small}  R=${R} )`,
-    'G0 X0',
-    'G1 Z0 F0.1',
-    `G03 X${fmt(large)} Z${Z} R${fmt(R)}`,
-  ];
-  if (!isNaN(small) && small > 0) {
-    lines.push(`G1 X${fmt(small)} Z${fmt(Z)}`);
-  }
-  return lines.join('\n');
-}
-
-// qt7：球头+角度  输入：大径、角度、Ra
-export function calcQt7({ large, angle, Ra }) {
-  large = Number(large); Ra = Number(Ra); angle = Number(angle);
-  if (isNaN(large) || large <= 0) throw new Error('大径必须为正数');
-  if (isNaN(Ra) || Ra <= 0) throw new Error('Ra必须为正数');
-  const Z = fmt(ballZ(Ra, large));
-  return [
-    `( 球头接点7  大径=${large}  角度=${angle}°  Ra=${Ra} )`,
-    'G0 X0',
-    'G1 Z0 F0.1',
-    `G03 X${fmt(large)} Z${Z} R${fmt(Ra)}`,
-  ].join('\n');
-}
-
-// qt8：内凹球头  输入：大径、r、R
-export function calcQt8({ large, r, R }) {
-  large = Number(large); r = Number(r); R = Number(R);
-  if (isNaN(large) || large <= 0) throw new Error('大径必须为正数');
-  if (isNaN(R) || R <= 0) throw new Error('R必须为正数');
-  const Z = fmt(ballZ(R, large));
-  return [
-    `( 球头接点8  大径=${large}  r=${r}  R=${R} )`,
-    'G0 X0',
-    'G1 Z0 F0.1',
-    `G03 X${fmt(large)} Z${Z} R${fmt(R)}`,
-  ].join('\n');
-}
-
-// qt9：球头+Ra过渡  输入：大径、R、Ra
-export function calcQt9({ large, R, Ra, juedui }) {
-  large = Number(large); R = Number(R); Ra = Number(Ra);
-  if (isNaN(large) || large <= 0) throw new Error('大径必须为正数');
-  if (isNaN(R) || R <= 0) throw new Error('R必须为正数');
   const isAbs = juedui !== 'false';
-  const Z = ballZ(R, large);
-  const xStr = isAbs ? `X${fmt(large)}` : `U${fmt(large)}`;
-  const zStr = isAbs ? `Z${fmt(Z)}` : `W${fmt(Z)}`;
-  return [
-    `( 球头接点9  大径=${large}  R=${R}  Ra=${Ra} )`,
-    'G0 X0',
-    'G1 Z0 F0.1',
-    `G03 ${xStr} ${zStr} R${fmt(R)}`,
-  ].join('\n');
+  const hasRa = Ra !== null && Ra !== undefined && Ra !== '' && !isNaN(Number(Ra)) && Number(Ra) > 0;
+  const hasTip = tip !== null && tip !== undefined && tip !== '' && !isNaN(Number(tip)) && Number(tip) > 0;
+  const raVal = hasRa ? Number(Ra) : 0;
+  const tipVal = hasTip ? Number(tip) : 0;
+
+  // L = R + sqrt(R² - (D/2)²)
+  const halfD = D / 2;
+  const calcL = r + Math.sqrt(r * r - halfD * halfD);
+
+  // 回填长度
+  if (typeof _onCalcValues === 'function') {
+    _onCalcValues({ long: calcL });
+  }
+
+  // 赤道点：X = 2R（直径值），Z = -R
+  const eqX = 2 * r;
+  const eqZ = -r;
+  // 底部终点：X = D, Z = -L
+  const endX = D;
+  const endZ = -calcL;
+
+  const lines = [];
+  lines.push(`( 球头接点4  直径=${D}  R=${r} )`);
+  lines.push('G0 X0');
+  lines.push('G1 Z0 F0.1');
+
+  if (isAbs) {
+    lines.push(`G03 X${fmt(eqX)} Z${fmt(eqZ)} R${fmt(r)}`);
+    lines.push(`G03 X${fmt(endX)} Z${fmt(endZ)} R${fmt(r)}`);
+  } else {
+    lines.push(`G03 U${fmt(eqX)} W${fmt(eqZ)} R${fmt(r)}`);
+    lines.push(`G03 U${fmt(endX - eqX)} W${fmt(endZ - eqZ)} R${fmt(r)}`);
+  }
+
+  return lines.join('\n');
+}
+
+// qt5：球头+Ra过渡+锥面  输入：大径(直径)、角度(全锥角)、长度1、R、Ra
+// 可选输入：小径、长度2、刀尖补偿、坐标系
+// 几何模型：大R圆弧 → Ra过渡圆弧 → 锥面直线
+export function calcQt5({ large, small, angle, long1, long2, R, Ra, tip, juedui, _onCalcValues }) {
+  const D  = large !== '' && large !== undefined ? Number(large) : NaN;
+  const a  = angle !== '' && angle !== undefined ? Number(angle) : NaN;
+  const L1 = long1 !== '' && long1 !== undefined ? Number(long1) : NaN;
+  const r  = R     !== '' && R     !== undefined ? Number(R)     : NaN;
+  const ra = Ra    !== '' && Ra    !== undefined ? Number(Ra)    : NaN;
+
+  if (isNaN(D) || D <= 0) throw new Error('大径必须为正数');
+  if (isNaN(a) || a <= 0) throw new Error('角度必须为正数');
+  if (isNaN(L1) || L1 <= 0) throw new Error('长度1必须为正数');
+  if (isNaN(r) || r <= 0) throw new Error('R必须为正数');
+  if (isNaN(ra) || ra <= 0) throw new Error('Ra必须为正数');
+
+  const isAbs = juedui !== 'false';
+  const hasTip = tip !== null && tip !== undefined && tip !== '' && !isNaN(Number(tip)) && Number(tip) > 0;
+  const tipVal = hasTip ? Number(tip) : 0;
+
+  // 半锥角（弧度）
+  const halfA = a / 2 * Math.PI / 180;
+  const sinA = Math.sin(halfA);
+  const cosA = Math.cos(halfA);
+  const tanA = Math.tan(halfA);
+
+  // ---- Ra 圆心求解 ----
+  // 大R圆弧圆心 O = (0, -R)
+  // 锥面直线过终点 (D/2, -L1)，方向 (sinA, -cosA)
+  // k = D/2 + (R - L1)*tan(α/2) + Ra/cos(α/2)
+  const k = D / 2 + (r - L1) * tanA + ra / cosA;
+
+  // 外切方程代入得二次方程：u²/cos²(α/2) - 2k*tan(α/2)*u + k² - (R+Ra)² = 0
+  // 判别式：disc = (R+Ra)²/cos²(α/2) - k²
+  const sumR = r + ra;
+  const disc = sumR * sumR / (cosA * cosA) - k * k;
+  if (disc < 0) throw new Error('无解：判别式小于0，请检查输入参数');
+
+  // u = cos²(α/2) * (k*tan(α/2) - sqrt(disc))  取较小解
+  const u = cosA * cosA * (k * tanA - Math.sqrt(disc));
+  const Cz = u - r;
+  const Cx = k - u * tanA;
+
+  // ---- 切点（大R圆弧上）----
+  // 方向 = (Cx, Cz+R)，归一化后乘以 R
+  const dist = Math.sqrt(Cx * Cx + (Cz + r) * (Cz + r));
+  const Tx = r * Cx / dist;
+  const Tz = -r + r * (Cz + r) / dist;
+  const tangentDia = 2 * Tx; // 切点直径值
+
+  // ---- Ra 终点（锥面直线上的垂足）----
+  // v = (Cx - D/2, Cz + L1)
+  // t = v · (sinA, -cosA)
+  const vx = Cx - D / 2;
+  const vz = Cz + L1;
+  const t = vx * sinA + vz * (-cosA);
+  const Fx = D / 2 + t * sinA;
+  const Fz = -L1 + t * (-cosA);
+  const raEndDia = 2 * Fx; // Ra终点直径值
+
+  // 小径 = Ra终点直径值
+  const calcSmall = raEndDia;
+
+  // 回传计算出的值
+  if (typeof _onCalcValues === 'function') {
+    _onCalcValues({ small: calcSmall, N: 2 * (Cx - ra), M: Math.abs(Cz) });
+  }
+
+  // ---- 赤道点 ----
+  const eqX = 2 * r;  // 赤道直径值
+  const eqZ = -r;
+
+  // ---- G代码生成 ----
+  const lines = [];
+  lines.push(`( 球头接点5  大径=${D}  角度=${a}°  长度=${L1}  R=${r}  Ra=${ra} )`);
+  lines.push('G0 X0');
+  lines.push('G1 Z0 F0.1');
+
+  if (isAbs) {
+    // 绝对坐标 X/Z
+    lines.push(`G03 X${fmt(eqX)} Z${fmt(eqZ)} R${fmt(r)}`);
+    lines.push(`G03 X${fmt(tangentDia)} Z${fmt(Tz)} R${fmt(r)}`);
+    lines.push(`G02 X${fmt(raEndDia)} Z${fmt(Fz)} R${fmt(ra)}`);
+    lines.push(`G1 X${fmt(D)} Z${fmt(-L1)}`);
+  } else {
+    // 相对坐标 U/W，计算增量
+    let curX = 0, curZ = 0;
+
+    // 大R圆弧到赤道
+    lines.push(`G03 U${fmt(eqX - curX)} W${fmt(eqZ - curZ)} R${fmt(r)}`);
+    curX = eqX; curZ = eqZ;
+
+    // 大R圆弧继续到切点
+    lines.push(`G03 U${fmt(tangentDia - curX)} W${fmt(Tz - curZ)} R${fmt(r)}`);
+    curX = tangentDia; curZ = Tz;
+
+    // Ra过渡圆弧（顺时针 G02）
+    lines.push(`G02 U${fmt(raEndDia - curX)} W${fmt(Fz - curZ)} R${fmt(ra)}`);
+    curX = raEndDia; curZ = Fz;
+
+    // 锥面直线到终点
+    lines.push(`G1 U${fmt(D - curX)} W${fmt(-L1 - curZ)}`);
+  }
+
+  return lines.join('\n');
+}
+
+// qt6：葫芦形球头  输入：大径、小径、角度(全锥角)、长度1、长度2、r(过渡圆弧)、R
+// 几何模型：起点(D_start,0) → 大R圆弧到赤道 → 大R圆弧到切点 → r过渡到最小径 → r过渡到直线切点 → 锥面直线到终点
+// Oz = |L1 - L2 - sqrt(R² - (小径/2)²)|
+// D_start = 2*sqrt(R² - Oz²)
+// 大R圆弧圆心 = (0, -Oz)
+export function calcQt6({ large, small, angle, long1, long2, rr, R, zStart, tip, juedui, _onCalcValues }) {
+  const D_large = large !== '' && large !== undefined ? Number(large) : NaN;
+  const d_small = small !== '' && small !== undefined ? Number(small) : NaN;
+  const a       = angle !== '' && angle !== undefined ? Number(angle) : NaN;
+  const L1      = long1 !== '' && long1 !== undefined ? Number(long1) : NaN;
+  const L2      = long2 !== '' && long2 !== undefined ? Number(long2) : NaN;
+  const r       = rr    !== '' && rr    !== undefined ? Number(rr)    : NaN;
+  const Rv      = R     !== '' && R     !== undefined ? Number(R)     : NaN;
+  const z0      = zStart !== '' && zStart !== undefined ? Number(zStart) : 0;
+
+  if (isNaN(D_large) || D_large <= 0) throw new Error('大径必须为正数');
+  if (isNaN(d_small) || d_small <= 0) throw new Error('小径必须为正数');
+  if (isNaN(a) || a <= 0) throw new Error('角度必须为正数');
+  if (isNaN(L1) || L1 <= 0) throw new Error('长度1必须为正数');
+  if (isNaN(L2) || L2 <= 0) throw new Error('长度2必须为正数');
+  if (isNaN(r) || r <= 0) throw new Error('r必须为正数');
+  if (isNaN(Rv) || Rv <= 0) throw new Error('R必须为正数');
+
+  const isAbs = juedui !== 'false';
+  const halfA = a / 2 * Math.PI / 180;
+  const sinA = Math.sin(halfA), cosA = Math.cos(halfA), tanA = Math.tan(halfA);
+
+  // 大R圆弧圆心Z偏移
+  const sqrtVal = Math.sqrt(Rv * Rv - (d_small / 2) * (d_small / 2));
+  const Oz = Math.abs(L1 - L2 - sqrtVal);
+
+  // 起点直径
+  const startHalf = Math.sqrt(Rv * Rv - Oz * Oz);
+  const D_start = 2 * startHalf;
+
+  // 大R圆弧圆心 O = (0, -Oz)
+  // 赤道点 (Rv, -Oz)，直径 = 2*Rv
+
+  // r过渡圆弧圆心求解（和qt5相同的方法，但圆心偏移为Oz而非R）
+  const k = D_large / 2 + (Oz - L1) * tanA + r / cosA;
+  const sumR = Rv + r;
+  const disc = sumR * sumR / (cosA * cosA) - k * k;
+  if (disc < 0) throw new Error('无解：判别式小于0，请检查输入参数');
+
+  const u = cosA * cosA * (k * tanA - Math.sqrt(disc));
+  const Cz = u - Oz;
+  const Cx = k - u * tanA;
+
+  // 切点（大R圆弧上）
+  const dx = Cx, dz = Cz + Oz;
+  const dist = Math.sqrt(dx * dx + dz * dz);
+  const Tx = Rv * dx / dist;
+  const Tz = -Oz + Rv * dz / dist;
+
+  // r过渡最小X点（实际小径）
+  const actualSmall = 2 * (Cx - r);
+  const minXz = Cz; // 最小X点Z = r圆心Z
+
+  // r终点（直线上的垂足）
+  const vx = Cx - D_large / 2, vz = Cz + L1;
+  const t2 = vx * sinA + vz * (-cosA);
+  const Fx = D_large / 2 + t2 * sinA;
+  const Fz = -L1 + t2 * (-cosA);
+
+  // 回传计算值
+  if (typeof _onCalcValues === 'function') {
+    _onCalcValues({ D: D_start, actualSmall, Oz });
+  }
+
+  // G代码生成
+  const lines = [];
+  lines.push(`( 球头接点6  大径=${D_large}  小径=${d_small}  R=${Rv} )`);
+
+  if (isAbs) {
+    lines.push(`G0 X${fmt(D_start)}`);
+    lines.push(`G1 Z${fmt(z0)}`);
+    lines.push(`G03 X${fmt(2 * Rv)} Z${fmt(z0 - Oz)} R${fmt(Rv)}`);
+    lines.push(`X${fmt(2 * Tx)} Z${fmt(z0 + Tz)} R${fmt(Rv)}`);
+    lines.push(`G02 X${fmt(actualSmall)} Z${fmt(z0 + minXz)} R${fmt(r)}`);
+    lines.push(`X${fmt(2 * Fx)} Z${fmt(z0 + Fz)} R${fmt(r)}`);
+    lines.push(`G1 X${fmt(D_large)} Z${fmt(z0 - L1)}`);
+  } else {
+    let curX = D_start, curZ = z0;
+    lines.push(`G0 X${fmt(D_start)}`);
+    lines.push(`G1 Z${fmt(z0)}`);
+
+    const eqX = 2 * Rv, eqZ = z0 - Oz;
+    lines.push(`G03 U${fmt(eqX - curX)} W${fmt(eqZ - curZ)} R${fmt(Rv)}`);
+    curX = eqX; curZ = eqZ;
+
+    const tpX = 2 * Tx, tpZ = z0 + Tz;
+    lines.push(`U${fmt(tpX - curX)} W${fmt(tpZ - curZ)} R${fmt(Rv)}`);
+    curX = tpX; curZ = tpZ;
+
+    const msX = actualSmall, msZ = z0 + minXz;
+    lines.push(`G02 U${fmt(msX - curX)} W${fmt(msZ - curZ)} R${fmt(r)}`);
+    curX = msX; curZ = msZ;
+
+    const feX = 2 * Fx, feZ = z0 + Fz;
+    lines.push(`U${fmt(feX - curX)} W${fmt(feZ - curZ)} R${fmt(r)}`);
+    curX = feX; curZ = feZ;
+
+    lines.push(`G1 U${fmt(D_large - curX)} W${fmt(z0 - L1 - curZ)}`);
+  }
+
+  return lines.join('\n');
+}
+
+// qt7：球头+锥面  输入：大径、角度（全锥角）、Ra、可选长度（计算回填）、Rb、刀尖补偿、坐标系
+// Ra圆弧圆心在(0, -Ra)，切点 Tx = Ra*cos(angle/2), Tz = Ra*(sin(angle/2)-1)
+// 直线从切点到(D/2, -L)，L = |Tz| + (D/2 - Tx) * cos(angle/2) / sin(angle/2)
+export function calcQt7({ large, angle, long, Ra, Rb, tip, juedui, _onCalcValues }) {
+  const D  = large !== '' && large !== undefined ? Number(large) : NaN;
+  const a  = angle !== '' && angle !== undefined ? Number(angle) : NaN;
+  const r  = Ra    !== '' && Ra    !== undefined ? Number(Ra)    : NaN;
+
+  if (isNaN(r) || r <= 0) throw new Error('Ra必须为正数');
+  if (isNaN(a) || a <= 0 || a >= 180) throw new Error('角度必须在0~180之间');
+  if (isNaN(D) || D <= 0) throw new Error('大径必须为正数');
+
+  const isAbs = juedui !== 'false';
+  const hasRb = Rb !== null && Rb !== undefined && Rb !== '' && !isNaN(Number(Rb)) && Number(Rb) > 0;
+  const hasTip = tip !== null && tip !== undefined && tip !== '' && !isNaN(Number(tip)) && Number(tip) > 0;
+  const rbVal = hasRb ? Number(Rb) : 0;
+  const tipVal = hasTip ? Number(tip) : 0;
+
+  // 半锥角（弧度）
+  const halfA = (a / 2) * Math.PI / 180;
+  const sinA = Math.sin(halfA);
+  const cosA = Math.cos(halfA);
+
+  // Ra圆弧切点（半径坐标）
+  const Tx = r * cosA;
+  const Tz = r * (sinA - 1); // 负值
+
+  // 长度 L = |Tz| + (D/2 - Tx) * cos(halfA) / sin(halfA)
+  const calcL = Math.abs(Tz) + (D / 2 - Tx) * cosA / sinA;
+
+  if (calcL <= 0) throw new Error('计算长度无效，请检查参数');
+
+  // 回填大径和长度
+  if (typeof _onCalcValues === 'function') {
+    _onCalcValues({ large: D, long: calcL });
+  }
+
+  const lines = [];
+  lines.push(`( 球头接点7  大径=${D}  角度=${a}°  Ra=${r} )`);
+  lines.push('G0 X0');
+  lines.push('G1 Z0 F0.1');
+
+  // 圆弧段：从(0,0)到切点(2*Tx, Tz)
+  const arcEndX = 2 * Tx;  // 直径值
+  const arcEndZ = Tz;
+
+  if (isAbs) {
+    lines.push(`G03 X${fmt(arcEndX)} Z${fmt(arcEndZ)} R${fmt(r)}`);
+    lines.push(`G1 X${fmt(D)} Z${fmt(-calcL)}`);
+  } else {
+    lines.push(`G03 U${fmt(arcEndX)} W${fmt(arcEndZ)} R${fmt(r)}`);
+    lines.push(`G1 U${fmt(D - arcEndX)} W${fmt(-calcL - arcEndZ)}`);
+  }
+
+  return lines.join('\n');
+}
+
+// qt8：内切两圆弧  输入：大径D、R（大圆弧）、r（小圆弧）、可选长度（计算回填）、刀尖补偿、坐标系
+// sinθ = (R - D/2) / (R - r), cosθ = sqrt(1 - sinθ²)
+// L = r + (R-r)*cosθ
+// 切点 Tx = r*sinθ, Tz = -r + r*cosθ
+// 输出两段G03：小R圆弧 + 大R圆弧
+export function calcQt8({ large, long, R, r, tip, juedui, _onCalcValues }) {
+  const D    = large !== '' && large !== undefined ? Number(large) : NaN;
+  const bigR = R     !== '' && R     !== undefined ? Number(R)     : NaN;
+  const smR  = r     !== '' && r     !== undefined ? Number(r)     : NaN;
+
+  if (isNaN(bigR) || bigR <= 0) throw new Error('R必须为正数');
+  if (isNaN(smR) || smR <= 0) throw new Error('小R必须为正数');
+  if (isNaN(D) || D <= 0) throw new Error('大径必须为正数');
+  if (bigR <= smR) throw new Error('R必须大于小R');
+  if (D / 2 >= bigR) throw new Error('大径/2 必须小于 R');
+
+  const isAbs = juedui !== 'false';
+  const hasTip = tip !== null && tip !== undefined && tip !== '' && !isNaN(Number(tip)) && Number(tip) > 0;
+  const tipVal = hasTip ? Number(tip) : 0;
+
+  // sinθ = (R - D/2) / (R - r)
+  const sinTheta = (bigR - D / 2) / (bigR - smR);
+  if (Math.abs(sinTheta) > 1) throw new Error('参数不合法，无法计算角度');
+  const cosTheta = Math.sqrt(1 - sinTheta * sinTheta);
+
+  // L = r + (R - r) * cosθ
+  const calcL = smR + (bigR - smR) * cosTheta;
+
+  // 回填长度
+  if (typeof _onCalcValues === 'function') {
+    _onCalcValues({ long: calcL });
+  }
+
+  // 切点（半径坐标）
+  const TxR = smR * sinTheta;       // 半径值
+  const TxD = 2 * TxR;              // 直径值
+  const TzVal = -smR + smR * cosTheta; // Z坐标
+
+  // 终点
+  const endX = D;
+  const endZ = -calcL;
+
+  const lines = [];
+  lines.push(`( 球头接点8  大径=${D}  R=${bigR}  小R=${smR} )`);
+  lines.push('G0 X0');
+  lines.push('G1 Z0 F0.1');
+
+  if (isAbs) {
+    lines.push(`G03 X${fmt(TxD)} Z${fmt(TzVal)} R${fmt(smR)}`);
+    lines.push(`G03 X${fmt(endX)} Z${fmt(endZ)} R${fmt(bigR)}`);
+  } else {
+    lines.push(`G03 U${fmt(TxD)} W${fmt(TzVal)} R${fmt(smR)}`);
+    lines.push(`G03 U${fmt(endX - TxD)} W${fmt(endZ - TzVal)} R${fmt(bigR)}`);
+  }
+
+  return lines.join('\n');
+}
+
+// qt9：球头+小R过渡  输入：大径、R、小R(Ra)
+// 几何：大R圆弧从(0,0)到切点，小R过渡圆弧(G02)从切点到终点
+// 大R圆心(0,-R)，小R圆心在大R圆心到切点方向延伸R+Ra处
+// 终点在小R圆弧最低点（切线水平）
+// 长度 = R - sqrt(R² - (D/2)²)
+// cosθ = 1 - 长度/(R+Ra)
+export function calcQt9({ large, R, Ra, long, tip, juedui, _onCalcValues }) {
+  const D  = large !== '' && large !== undefined ? Number(large) : NaN;
+  const Rv = R     !== '' && R     !== undefined ? Number(R)     : NaN;
+  const ra = Ra    !== '' && Ra    !== undefined ? Number(Ra)    : NaN;
+
+  if (isNaN(Rv) || Rv <= 0) throw new Error('R必须为正数');
+  if (isNaN(ra) || ra <= 0) throw new Error('小R必须为正数');
+  if (isNaN(D) || D <= 0) throw new Error('大径必须为正数');
+  if (D / 2 > Rv) throw new Error('大径/2 不能大于 R');
+
+  const isAbs = juedui !== 'false';
+
+  // 长度 = R - sqrt(R² - (D/2)²)
+  const calcL = Rv - Math.sqrt(Rv * Rv - (D / 2) * (D / 2));
+
+  // cosθ, sinθ
+  const cosTheta = 1 - calcL / (Rv + ra);
+  const sinTheta = Math.sqrt(1 - cosTheta * cosTheta);
+
+  // 切点（大R圆弧上）
+  const Tx = Rv * sinTheta;
+  const Tz = -Rv + Rv * cosTheta;
+
+  // 小R圆心
+  const Cx = (Rv + ra) * sinTheta;
+  const Cz = -Rv + (Rv + ra) * cosTheta;
+
+  // 终点（小R圆弧最低点）
+  const endX = Cx;
+  const endZ = Cz - ra;
+
+  // 回填长度
+  if (typeof _onCalcValues === 'function') {
+    _onCalcValues({ long: calcL });
+  }
+
+  const lines = [];
+  lines.push(`( 球头接点9  大径=${D}  R=${Rv}  小R=${ra} )`);
+  lines.push('G0 X0');
+  lines.push('G1 Z0');
+
+  if (isAbs) {
+    lines.push(`G3 X${fmt(2 * Tx)} Z${fmt(Tz)} R${fmt(Rv)}`);
+    lines.push(`G2 X${fmt(2 * endX)} Z${fmt(endZ)} R${fmt(ra)}`);
+  } else {
+    lines.push(`G3 U${fmt(2 * Tx)} W${fmt(Tz)} R${fmt(Rv)}`);
+    lines.push(`G2 U${fmt(2 * (endX - Tx))} W${fmt(endZ - Tz)} R${fmt(ra)}`);
+  }
+
+  return lines.join('\n');
 }
 
 // qt10：复合球头  输入：大径、小径、R
@@ -572,35 +919,73 @@ export function calcQt10({ large, small, R, juedui }) {
   ].join('\n');
 }
 
-// qt11：球头+直线+球头  输入：大径、小径、长度、R
-export function calcQt11({ large, small, long, R, juedui }) {
-  large = Number(large); small = Number(small); long = Number(long); R = Number(R);
-  if (isNaN(large) || large <= 0) throw new Error('大径必须为正数');
-  if (isNaN(R) || R <= 0) throw new Error('R必须为正数');
+// qt11：球头+锥面  输入：大径、小径、长度、R
+// 几何：大R圆弧从(0,0)到赤道(大径/2,-R)再到切点，然后直线到(小径/2,-长度)
+// 切点处大R圆弧切线=直线方向
+// 角度=全锥角=2*atan((切点X-小径/2)/(长度+切点Z))
+export function calcQt11({ large, small, angle, long, R, Ra, tip, juedui, _onCalcValues }) {
+  const D  = large !== '' && large !== undefined ? Number(large) : NaN;
+  const d  = small !== '' && small !== undefined ? Number(small) : NaN;
+  const L  = long  !== '' && long  !== undefined ? Number(long)  : NaN;
+  const Rv = R     !== '' && R     !== undefined ? Number(R)     : NaN;
+
+  if (isNaN(Rv) || Rv <= 0) throw new Error('R必须为正数');
+  if (isNaN(D) || D <= 0) throw new Error('大径必须为正数');
+  if (isNaN(d) || d <= 0) throw new Error('小径必须为正数');
+  if (isNaN(L) || L <= 0) throw new Error('长度必须为正数');
+  if (D / 2 > Rv) throw new Error('大径/2 不能大于 R');
+
   const isAbs = juedui !== 'false';
-  const Z1 = ballZ(R, large);
-  let curX = 0, curZ = 0;
-  const lines = [
-    `( 球头接点11  大径=${large}  小径=${small}  长度=${long}  R=${R} )`,
-    'G0 X0',
-    'G1 Z0 F0.1',
-  ];
-  const arc1X = isAbs ? `X${fmt(large)}` : `U${fmt(large - curX)}`;
-  const arc1Z = isAbs ? `Z${fmt(Z1)}` : `W${fmt(Z1 - curZ)}`;
-  lines.push(`G03 ${arc1X} ${arc1Z} R${fmt(R)}`);
-  curX = large; curZ = Z1;
-  if (!isNaN(long) && long > 0) {
-    const nextZ = Z1 - long;
-    const lZ = isAbs ? `Z${fmt(nextZ)}` : `W${fmt(-long)}`;
-    lines.push(`G1 X${isAbs ? fmt(large) : '0'} ${lZ}`);
-    curZ = nextZ;
+
+  // 数值求解切点：大R圆弧上切线方向=直线方向
+  // 设 u = Tz+R（切点相对圆心的Z偏移）
+  // Tx^2+u^2=R^2, Tx=sqrt(R^2-u^2)
+  // 切线方向 ∝ (-u, Tx)
+  // 直线方向 ∝ (d/2-Tx, -L-Tz) = (d/2-Tx, -L+R-u)
+  // 平行条件：-u*(-L+R-u) = Tx*(d/2-Tx)
+  // u*(L-R+u) = Tx*(d/2-Tx)
+  let bestErr = Infinity, bestU = 0;
+  for (let u = -Rv; u < 0; u += 0.0001) {
+    const Tx2 = Rv * Rv - u * u;
+    if (Tx2 < 0) continue;
+    const Tx = Math.sqrt(Tx2);
+    const lhs = u * (L - Rv + u);
+    const rhs = Tx * (d / 2 - Tx);
+    const err = Math.abs(lhs - rhs);
+    if (err < bestErr) { bestErr = err; bestU = u; }
   }
-  if (!isNaN(small) && small > 0) {
-    const Z2 = ballZ(R, small);
-    const arc2X = isAbs ? `X${fmt(small)}` : `U${fmt(small - curX)}`;
-    const arc2Z = isAbs ? `Z${fmt(curZ + Z2)}` : `W${fmt(Z2)}`;
-    lines.push(`G02 ${arc2X} ${arc2Z} R${fmt(R)}`);
+
+  const Tx = Math.sqrt(Rv * Rv - bestU * bestU);
+  const Tz = bestU - Rv;
+
+  // 角度 = 2*atan((Tx-d/2)/(L+Tz))
+  const calcAngle = 2 * Math.atan((Tx - d / 2) / (L + Tz)) * 180 / Math.PI;
+
+  // 回填角度和大径
+  if (typeof _onCalcValues === 'function') {
+    _onCalcValues({ angle: calcAngle, large: D });
   }
+
+  const lines = [];
+  lines.push(`( 球头接点11  大径=${D}  小径=${d}  长度=${L}  R=${Rv} )`);
+
+  if (isAbs) {
+    lines.push('G0 X-0');
+    lines.push('G1 Z0 F0.05');
+    lines.push(`G3 X${fmt(D)} Z${fmt(-Rv)} R${fmt(Rv)}`);
+    lines.push(`X${fmt(2 * Tx)} Z${fmt(Tz)} R${fmt(Rv)}`);
+    lines.push(`G1 X${fmt(d)} Z${fmt(-L)}`);
+  } else {
+    let curX = 0, curZ = 0;
+    lines.push('G0 X-0');
+    lines.push('G1 Z0 F0.05');
+    lines.push(`G3 U${fmt(D)} W${fmt(-Rv)} R${fmt(Rv)}`);
+    curX = D; curZ = -Rv;
+    lines.push(`U${fmt(2 * Tx - curX)} W${fmt(Tz - curZ)} R${fmt(Rv)}`);
+    curX = 2 * Tx; curZ = Tz;
+    lines.push(`G1 U${fmt(d - curX)} W${fmt(-L - curZ)}`);
+  }
+
   return lines.join('\n');
 }
 
