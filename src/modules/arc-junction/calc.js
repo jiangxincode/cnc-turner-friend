@@ -374,17 +374,95 @@ export function calcQt2({ large, small, R, long, zStart, Ra, Rb, tip, buchang, j
 }
 
 // qt3：球头+锥面  输入：大径、角度、R
-export function calcQt3({ large, angle, R }) {
-  large = Number(large); R = Number(R); angle = Number(angle);
-  if (isNaN(large) || large <= 0) throw new Error('大径必须为正数');
-  if (isNaN(R) || R <= 0) throw new Error('R必须为正数');
-  const Z = fmt(ballZ(R, large));
-  return [
-    `( 球头接点3  大径=${large}  角度=${angle}°  R=${R} )`,
-    'G0 X0',
-    'G1 Z0 F0.1',
-    `G03 X${fmt(large)} Z${Z} R${fmt(R)}`,
-  ].join('\n');
+// qt3：球头+锥面  输入：大径、小径、角度、角度长、圆弧长、R（任填三项，圆弧长/R至少填一项）
+export function calcQt3({ large, small, angle, angleLen, arcLen, R, Ra, tip, juedui, _onCalcValues }) {
+  const D  = large    !== '' && large    !== undefined ? Number(large)    : NaN;
+  const d  = small    !== '' && small    !== undefined ? Number(small)    : NaN;
+  const a  = angle    !== '' && angle    !== undefined ? Number(angle)    : NaN;
+  const aL = angleLen !== '' && angleLen !== undefined ? Number(angleLen) : NaN;
+  const cL = arcLen   !== '' && arcLen   !== undefined ? Number(arcLen)   : NaN;
+  const r  = R        !== '' && R        !== undefined ? Number(R)        : NaN;
+
+  const isAbs = juedui !== 'false';
+  const hasRa = Ra !== null && Ra !== undefined && Ra !== '' && !isNaN(Number(Ra)) && Number(Ra) > 0;
+  const hasTip = tip !== null && tip !== undefined && tip !== '' && !isNaN(Number(tip)) && Number(tip) > 0;
+  const raVal = hasRa ? Number(Ra) : 0;
+  const tipVal = hasTip ? Number(tip) : 0;
+
+  // 核心关系：
+  // 小径 = 大径 - 2 * 角度长 * tan(角度/2)
+  // 圆弧长 = R - sqrt(R² - (小径/2)²)
+  let calcD = D, calcD2 = d, calcA = a, calcAL = aL, calcCL = cL, calcR = r;
+
+  // 如果有角度和角度长和大径，可以算小径
+  if (!isNaN(calcD) && !isNaN(calcA) && !isNaN(calcAL) && isNaN(calcD2)) {
+    const halfAngle = calcA / 2 * Math.PI / 180;
+    calcD2 = calcD - 2 * calcAL * Math.tan(halfAngle);
+  }
+  // 如果有角度和角度长和小径，可以算大径
+  if (isNaN(calcD) && !isNaN(calcA) && !isNaN(calcAL) && !isNaN(calcD2)) {
+    const halfAngle = calcA / 2 * Math.PI / 180;
+    calcD = calcD2 + 2 * calcAL * Math.tan(halfAngle);
+  }
+  // 如果有大径和小径和角度，可以算角度长
+  if (!isNaN(calcD) && !isNaN(calcD2) && !isNaN(calcA) && isNaN(calcAL)) {
+    const halfAngle = calcA / 2 * Math.PI / 180;
+    calcAL = (calcD - calcD2) / (2 * Math.tan(halfAngle));
+  }
+  // 如果有大径和小径和角度长，可以算角度
+  if (!isNaN(calcD) && !isNaN(calcD2) && isNaN(calcA) && !isNaN(calcAL)) {
+    const halfDiff = (calcD - calcD2) / 2;
+    calcA = 2 * Math.atan(halfDiff / calcAL) * 180 / Math.PI;
+  }
+
+  // 如果有R和小径，可以算圆弧长
+  if (!isNaN(calcR) && !isNaN(calcD2) && isNaN(calcCL)) {
+    const half = calcD2 / 2;
+    if (half > calcR) throw new Error('小径/2 不能大于 R');
+    calcCL = calcR - Math.sqrt(calcR * calcR - half * half);
+  }
+  // 如果有圆弧长和小径，可以算R
+  if (isNaN(calcR) && !isNaN(calcD2) && !isNaN(calcCL)) {
+    const half = calcD2 / 2;
+    // R - sqrt(R²-h²) = cL → R = (h² + cL²) / (2*cL)
+    calcR = (half * half + calcCL * calcCL) / (2 * calcCL);
+  }
+
+  // 验证
+  if (isNaN(calcD) || calcD <= 0) throw new Error('无法计算大径，请检查输入');
+  if (isNaN(calcD2) || calcD2 <= 0) throw new Error('无法计算小径，请检查输入');
+  if (isNaN(calcR) || calcR <= 0) throw new Error('无法计算R，请检查输入');
+  if (isNaN(calcCL) || calcCL <= 0) throw new Error('无法计算圆弧长，请检查输入');
+  if (isNaN(calcAL)) calcAL = 0;
+
+  // 回传计算出的值
+  if (typeof _onCalcValues === 'function') {
+    _onCalcValues({ large: calcD, small: calcD2, angle: calcA, angleLen: calcAL, arcLen: calcCL, R: calcR });
+  }
+
+  const lines = [];
+  lines.push(`( 球头接点3  大径=${calcD}  角度=${calcA}°  R=${calcR} )`);
+  lines.push('G0 X0');
+  lines.push('G1 Z0 F0.1');
+
+  // 圆弧段：从(0,0)到(小径, -圆弧长)
+  if (isAbs) {
+    lines.push(`G03 X${fmt(calcD2)} Z${fmt(-calcCL)} R${fmt(calcR)}`);
+  } else {
+    lines.push(`G03 U${fmt(calcD2)} W${fmt(-calcCL)} R${fmt(calcR)}`);
+  }
+
+  // 锥面直线段：从(小径, -圆弧长)到(大径, -(圆弧长+角度长))
+  if (calcAL > 0) {
+    const endZ = -(calcCL + calcAL);
+    if (isAbs) {
+      lines.push(`G1 X${fmt(calcD)} Z${fmt(endZ)}`);
+    } else {
+      lines.push(`G1 U${fmt(calcD - calcD2)} W${fmt(-calcAL)}`);
+    }
+  }
+
+  return lines.join('\n');
 }
 
 // qt4：球头+直线  输入：大径、R、长度

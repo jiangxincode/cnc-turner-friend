@@ -1,7 +1,7 @@
 import Router from '../../router.js';
 import { renderNavBar } from '../../components/nav-bar.js';
 import { qtPages, wyPages, nkPages } from '../../data/arc-junction-data.js';
-import { calcArcPage, calcQt2 } from './calc.js';
+import { calcArcPage, calcQt2, calcQt3 } from './calc.js';
 
 const app = document.getElementById('app');
 
@@ -586,6 +586,253 @@ function renderQt2Page() {
 }
 
 /**
+ * 球头接点3 专用渲染（两列布局，任填三项）
+ */
+function renderQt3Page() {
+  const page = qtPages[2]; // qt3
+  app.innerHTML = '';
+
+  let output;
+
+  renderNavBar(app, {
+    title: page.title,
+    showBack: true,
+    showReset: true,
+    onReset: () => resetAll(),
+  });
+
+  const content = document.createElement('div');
+  content.className = 'page-content';
+
+  // 示意图
+  if (page.diagram) {
+    const diagArea = document.createElement('div');
+    diagArea.className = 'diagram-area';
+    const img = document.createElement('img');
+    img.src = page.diagram;
+    img.alt = page.title;
+    img.onerror = () => { diagArea.innerHTML = '<span style="color:#999;font-size:13px;">图片加载失败</span>'; };
+    diagArea.appendChild(img);
+    content.appendChild(diagArea);
+  }
+
+  // 输入表单（两列布局）
+  const form = document.createElement('div');
+
+  const mainFields = [
+    { id: 'large',    label: '大径',   default: 8 },
+    { id: 'small',    label: '小径',   default: '' },
+    { id: 'angle',    label: '角度',   default: 30 },
+    { id: 'angleLen', label: '角度长', default: 0.6 },
+    { id: 'arcLen',   label: '圆弧长', default: '' },
+    { id: 'R',        label: 'R',      default: 8 },
+  ];
+
+  for (let i = 0; i < mainFields.length; i += 2) {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;border-bottom:1px solid #eee;';
+    [mainFields[i], mainFields[i + 1]].forEach(f => {
+      const cell = document.createElement('div');
+      cell.style.cssText = 'flex:1;display:flex;align-items:center;padding:8px 12px;gap:8px;';
+      const lbl = document.createElement('span');
+      lbl.style.cssText = 'font-size:14px;color:#333;white-space:nowrap;min-width:42px;';
+      lbl.textContent = f.label;
+      const inp = document.createElement('input');
+      inp.type = 'number';
+      inp.className = 'form-input';
+      if (f.default !== '') inp.value = f.default;
+      inp.dataset.id = f.id;
+      inp.style.cssText = 'flex:1;min-width:0;';
+      cell.appendChild(lbl);
+      cell.appendChild(inp);
+      row.appendChild(cell);
+    });
+    form.appendChild(row);
+  }
+
+  // 提示文字
+  const tipEl = document.createElement('div');
+  tipEl.style.cssText = 'padding:4px 16px;font-size:12px;color:#e67e22;text-align:right;';
+  tipEl.textContent = '任填三项（圆弧长 R 任填一项）';
+  form.appendChild(tipEl);
+
+  // Ra / Rb 行（两列）
+  const raRbRow = document.createElement('div');
+  raRbRow.style.cssText = 'display:flex;border-bottom:1px solid #eee;';
+
+  [{ id: 'Ra', label: 'Ra' }, { id: 'Rb', label: 'Rb' }].forEach(f => {
+    const cell = document.createElement('div');
+    cell.style.cssText = 'flex:1;display:flex;align-items:center;padding:8px 12px;gap:8px;';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.style.cssText = 'width:18px;height:18px;cursor:pointer;flex-shrink:0;';
+    cb.dataset.id = f.id + '_enabled';
+    const lbl = document.createElement('span');
+    lbl.style.cssText = 'font-size:14px;color:#333;';
+    lbl.textContent = f.label;
+    const inp = document.createElement('input');
+    inp.type = 'number';
+    inp.className = 'form-input';
+    inp.dataset.id = f.id;
+    inp.disabled = true;
+    inp.style.cssText = 'flex:1;min-width:0;opacity:0.4;';
+    cb.addEventListener('change', () => {
+      inp.disabled = !cb.checked;
+      inp.style.opacity = cb.checked ? '1' : '0.4';
+    });
+    cell.appendChild(cb);
+    cell.appendChild(lbl);
+    cell.appendChild(inp);
+    raRbRow.appendChild(cell);
+  });
+  form.appendChild(raRbRow);
+
+  // 刀尖补偿
+  const tipRow = document.createElement('div');
+  tipRow.style.cssText = 'display:flex;align-items:center;padding:8px 12px;gap:8px;border-bottom:1px solid #eee;';
+  const tipCb = document.createElement('input');
+  tipCb.type = 'checkbox';
+  tipCb.style.cssText = 'width:18px;height:18px;cursor:pointer;';
+  tipCb.dataset.id = 'tip_enabled';
+  const tipLbl = document.createElement('span');
+  tipLbl.style.cssText = 'font-size:14px;color:#333;';
+  tipLbl.textContent = '刀尖补偿';
+  const tipInp = document.createElement('input');
+  tipInp.type = 'number';
+  tipInp.className = 'form-input';
+  tipInp.value = 0.4;
+  tipInp.dataset.id = 'tip';
+  tipInp.disabled = true;
+  tipInp.style.cssText = 'width:80px;opacity:0.4;margin-left:8px;';
+  tipCb.addEventListener('change', () => {
+    tipInp.disabled = !tipCb.checked;
+    tipInp.style.opacity = tipCb.checked ? '1' : '0.4';
+  });
+  tipRow.appendChild(tipCb);
+  tipRow.appendChild(tipLbl);
+  tipRow.appendChild(tipInp);
+  form.appendChild(tipRow);
+
+  // 坐标系选择（单选框）
+  const coordRow = document.createElement('div');
+  coordRow.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:20px;padding:10px 16px;border-bottom:1px solid #eee;';
+  ['绝对坐标', '相对坐标'].forEach((label, i) => {
+    const lbl = document.createElement('label');
+    lbl.style.cssText = 'display:flex;align-items:center;gap:4px;cursor:pointer;font-size:14px;';
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'qt3coord';
+    radio.value = i === 0 ? 'true' : 'false';
+    radio.checked = i === 0;
+    radio.style.cssText = 'width:16px;height:16px;cursor:pointer;';
+    lbl.appendChild(radio);
+    lbl.appendChild(document.createTextNode(label));
+    coordRow.appendChild(lbl);
+  });
+  form.appendChild(coordRow);
+
+  content.appendChild(form);
+
+  // 按钮区域
+  const btnArea = document.createElement('div');
+  btnArea.style.cssText = 'display:flex;gap:8px;padding:12px 16px;';
+  const copyBtn = document.createElement('button');
+  copyBtn.className = 'btn-primary';
+  copyBtn.style.cssText = 'flex:1;background:#95a5a6;';
+  copyBtn.textContent = '复制';
+  copyBtn.addEventListener('click', () => {
+    if (output && output.value) {
+      navigator.clipboard.writeText(output.value).catch(() => {
+        output.select();
+        document.execCommand('copy');
+      });
+    }
+  });
+  const calcBtn = document.createElement('button');
+  calcBtn.className = 'btn-primary';
+  calcBtn.style.flex = '2';
+  calcBtn.textContent = '计算';
+  calcBtn.addEventListener('click', () => calculate());
+  btnArea.appendChild(copyBtn);
+  btnArea.appendChild(calcBtn);
+  content.appendChild(btnArea);
+
+  // 输出区域
+  const outputWrap = document.createElement('div');
+  outputWrap.style.cssText = 'padding:0 16px 16px;';
+  output = document.createElement('textarea');
+  output.style.cssText = 'width:100%;height:160px;font-family:monospace;font-size:13px;padding:8px;border:1px solid #ddd;border-radius:4px;resize:vertical;box-sizing:border-box;';
+  output.placeholder = '点击"计算"按钮生成坐标序列...';
+  output.readOnly = true;
+  outputWrap.appendChild(output);
+  content.appendChild(outputWrap);
+
+  app.appendChild(content);
+
+  // 重置
+  function resetAll() {
+    mainFields.forEach(f => {
+      const el = app.querySelector(`[data-id="${f.id}"]`);
+      if (el) el.value = f.default !== '' ? f.default : '';
+    });
+    ['Ra', 'Rb'].forEach(id => {
+      const cb = app.querySelector(`[data-id="${id}_enabled"]`);
+      const inp = app.querySelector(`[data-id="${id}"]`);
+      if (cb) cb.checked = false;
+      if (inp) { inp.value = ''; inp.disabled = true; inp.style.opacity = '0.4'; }
+    });
+    tipCb.checked = false;
+    tipInp.value = 0.4; tipInp.disabled = true; tipInp.style.opacity = '0.4';
+    app.querySelector('input[name="qt3coord"][value="true"]').checked = true;
+    if (output) output.value = '';
+  }
+
+  // 计算
+  function calculate() {
+    const getVal = id => {
+      const el = app.querySelector(`[data-id="${id}"]`);
+      if (!el) return '';
+      return el.value.trim();
+    };
+
+    const juedui = app.querySelector('input[name="qt3coord"]:checked')?.value ?? 'true';
+    const raCb = app.querySelector('[data-id="Ra_enabled"]');
+    const rbCb = app.querySelector('[data-id="Rb_enabled"]');
+    const Ra = raCb && raCb.checked ? getVal('Ra') : '';
+    const Rb = rbCb && rbCb.checked ? getVal('Rb') : '';
+
+    try {
+      const result = calcQt3({
+        large: getVal('large'),
+        small: getVal('small'),
+        angle: getVal('angle'),
+        angleLen: getVal('angleLen'),
+        arcLen: getVal('arcLen'),
+        R: getVal('R'),
+        Ra,
+        Rb,
+        tip: tipCb.checked ? getVal('tip') : null,
+        juedui,
+        _onCalcValues: (vals) => {
+          // 回填计算出的值到输入框
+          mainFields.forEach(f => {
+            const el = app.querySelector(`[data-id="${f.id}"]`);
+            if (el && el.value.trim() === '' && vals[f.id] !== undefined && !isNaN(vals[f.id])) {
+              el.value = parseFloat(vals[f.id].toFixed(3));
+            }
+          });
+        },
+      });
+      // 过滤括号注释行
+      const filtered = result.split('\n').filter(l => !/^\s*\(.*\)\s*$/.test(l)).join('\n');
+      output.value = filtered;
+    } catch (e) {
+      output.value = `错误: ${e.message}`;
+    }
+  }
+}
+
+/**
  * 渲染圆弧接点入口页面（分组网格）
  */
 function renderArcIndex() {
@@ -646,6 +893,11 @@ export function registerRoutes(router) {
     if (idx === 1) {
       // qt2 使用专用渲染
       renderQt2Page();
+      return;
+    }
+    if (idx === 2) {
+      // qt3 使用专用渲染
+      renderQt3Page();
       return;
     }
     const page = qtPages[idx];
